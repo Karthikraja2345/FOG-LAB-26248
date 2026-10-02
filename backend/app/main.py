@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.app.config import settings
 from backend.app.database import engine, Base
 from backend.app.api.health import router as health_router
+from backend.app.api.scenarios import router as scenarios_router
 
 # Configure logging
 logging.basicConfig(
@@ -39,6 +40,7 @@ app.add_middleware(
 
 # Include core routers
 app.include_router(health_router, prefix="/api")
+app.include_router(scenarios_router, prefix="/api")
 
 @app.get("/")
 def root():
