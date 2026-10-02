@@ -10,6 +10,18 @@ import { AARDashboard } from './pages/AARDashboard';
 import { DecisionReview } from './pages/DecisionReview';
 import { Replay } from './pages/Replay';
 import { Counterfactual } from './pages/Counterfactual';
+import {
+  Shield,
+  Compass,
+  Layers,
+  SlidersHorizontal,
+  Radio,
+  FileText,
+  Activity,
+  RotateCcw,
+  GitBranch,
+  Wifi
+} from 'lucide-react';
 
 interface HealthData {
   status: string;
@@ -60,94 +72,109 @@ export const App: React.FC = () => {
 
   return (
     <div className="app-layout">
-      {/* Top Command Navbar */}
+      {/* Institutional Top Command Navbar */}
       <header className="top-navbar">
         <div className="brand-section">
-          <span
-            className="brand-title"
-            style={{ cursor: 'pointer' }}
+          <div
+            className="brand-icon-wrapper cursor-pointer"
             onClick={() => setActiveTab('landing')}
+            title="DSSC Wellington • FOG-LAB 26248"
           >
-            <span role="img" aria-label="shield">🛡️</span> FOG-LAB 26248
-          </span>
-          <span className="brand-tag">PS-26248 / MoD DSSC</span>
-          {currentSession && (
-            <span
-              style={{
-                fontSize: '11px',
-                color: 'var(--text-secondary)',
-                fontFamily: 'var(--font-mono)',
-                marginLeft: '8px'
-              }}
+            <Shield size={20} className="text-orange" />
+          </div>
+          <div>
+            <div
+              className="brand-title cursor-pointer"
+              onClick={() => setActiveTab('landing')}
             >
-              EXERCISE: <strong>{currentSession.session_code}</strong>
-            </span>
+              FOG-LAB 26248
+              <span className="brand-badge ml-2">PS 26248</span>
+            </div>
+            <div className="brand-subtitle">Defence Services Staff College • Wellington</div>
+          </div>
+
+          {currentSession && (
+            <div className="hidden md:flex items-center ml-4 pl-4 border-l border-white/10 text-xs font-mono text-slate-300">
+              <span className="text-slate-400 mr-2">EXERCISE:</span>
+              <strong className="text-orange font-bold">{currentSession.session_code}</strong>
+            </div>
           )}
         </div>
 
+        {/* Navigation Tabs with Lucide Icons */}
         <nav className="nav-links">
           <button
             className={`nav-btn ${activeTab === 'landing' ? 'active' : ''}`}
             onClick={() => setActiveTab('landing')}
           >
-            Overview
+            <Compass size={14} />
+            <span>Overview</span>
           </button>
           <button
             className={`nav-btn ${activeTab === 'scenarios' ? 'active' : ''}`}
             onClick={() => setActiveTab('scenarios')}
           >
-            Scenarios
+            <Layers size={14} />
+            <span>Scenarios</span>
           </button>
           <button
             className={`nav-btn ${activeTab === 'instructor' ? 'active' : ''}`}
             onClick={() => setActiveTab('instructor')}
           >
-            Instructor Control
+            <SlidersHorizontal size={14} />
+            <span>Instructor Control</span>
           </button>
           <button
             className={`nav-btn ${activeTab === 'trainee' ? 'active' : ''}`}
             onClick={() => setActiveTab('trainee')}
           >
-            Trainee Workspace
+            <Radio size={14} />
+            <span>Trainee Station</span>
           </button>
           <button
             className={`nav-btn ${activeTab === 'decisions' ? 'active' : ''}`}
             onClick={() => setActiveTab('decisions')}
           >
-            Decision Ledger
+            <FileText size={14} />
+            <span>Decision Ledger</span>
           </button>
           <button
             className={`nav-btn ${activeTab === 'aar' ? 'active' : ''}`}
             onClick={() => setActiveTab('aar')}
           >
-            AAR Dashboard
+            <Activity size={14} />
+            <span>AAR Dashboard</span>
           </button>
           <button
             className={`nav-btn ${activeTab === 'replay' ? 'active' : ''}`}
             onClick={() => setActiveTab('replay')}
           >
-            Replay
+            <RotateCcw size={14} />
+            <span>Replay</span>
           </button>
           <button
             className={`nav-btn ${activeTab === 'counterfactual' ? 'active' : ''}`}
             onClick={() => setActiveTab('counterfactual')}
           >
-            Counterfactual
+            <GitBranch size={14} />
+            <span>Counterfactual</span>
           </button>
         </nav>
 
-        <div className="system-status-indicator">
+        {/* System Status Indicator */}
+        <div className="system-status-indicator hidden lg:flex">
           <div
             className={`status-dot ${
               loading ? 'degraded' : error ? 'offline' : 'online'
             }`}
           />
-          <span>
+          <span className="flex items-center gap-1.5">
+            <Wifi size={13} className="text-emerald-400" />
             {loading
               ? 'INITIALIZING'
               : error
               ? 'SIMULATION OFFLINE'
-              : `ONLINE | DB: ${health?.database}`}
+              : `DSSC ONLINE | DB: ${health?.database || 'CONNECTED'}`}
           </span>
         </div>
       </header>

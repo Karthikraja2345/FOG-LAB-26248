@@ -1,5 +1,6 @@
 import React from 'react';
 import { UncertaintyBudget } from '../types';
+import { Activity } from 'lucide-react';
 
 interface UncertaintyPanelProps {
   budget: UncertaintyBudget;
@@ -7,95 +8,60 @@ interface UncertaintyPanelProps {
 
 export const UncertaintyPanel: React.FC<UncertaintyPanelProps> = ({ budget }) => {
   return (
-    <div
-      style={{
-        background: 'var(--bg-secondary)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: '6px',
-        padding: '14px'
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-        <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent-cyan)', letterSpacing: '0.05em' }}>
-          UNCERTAINTY BUDGET
-        </span>
+    <div className="bg-white border border-[#E5E5E5] rounded-xl p-5 shadow-sm">
+      <div className="flex justify-between items-center mb-4 pb-2 border-b border-[#E5E5E5]">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-md bg-[#14213D] text-[#FCA311] flex items-center justify-center">
+            <Activity size={13} />
+          </div>
+          <span className="font-serif text-xs font-bold text-[#14213D] uppercase tracking-wider">
+            Uncertainty Budget Index
+          </span>
+        </div>
         <span
-          style={{
-            fontSize: '13px',
-            fontFamily: 'var(--font-mono)',
-            fontWeight: 700,
-            color: budget.total_uncertainty_score > 5.0 ? 'var(--accent-red)' : 'var(--accent-amber)'
-          }}
+          className={`px-2.5 py-0.5 rounded text-xs font-mono font-bold ${
+            budget.total_uncertainty_score > 5.0
+              ? 'bg-red-50 text-red-700 border border-red-200'
+              : 'bg-amber-50 text-amber-700 border border-amber-200'
+          }`}
         >
-          COMPOSITE INDEX: {budget.total_uncertainty_score}
+          INDEX: {budget.total_uncertainty_score.toFixed(1)}
         </span>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
-        <div
-          style={{
-            background: 'var(--bg-tertiary)',
-            padding: '10px 8px',
-            borderRadius: '4px',
-            textAlign: 'center',
-            border: '1px solid var(--border-subtle)'
-          }}
-        >
-          <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--status-conflict)', fontFamily: 'var(--font-mono)' }}>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="bg-[#F9FAFB] p-3 rounded-lg border border-[#E5E5E5] text-center">
+          <div className="text-xl font-bold font-mono text-purple-700">
             {budget.unresolved_contradictions}
           </div>
-          <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-            Unresolved Conflicts
+          <div className="text-[10px] text-[#6B7280] font-medium mt-1">
+            Contradictions
           </div>
         </div>
 
-        <div
-          style={{
-            background: 'var(--bg-tertiary)',
-            padding: '10px 8px',
-            borderRadius: '4px',
-            textAlign: 'center',
-            border: '1px solid var(--border-subtle)'
-          }}
-        >
-          <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--status-stale)', fontFamily: 'var(--font-mono)' }}>
+        <div className="bg-[#F9FAFB] p-3 rounded-lg border border-[#E5E5E5] text-center">
+          <div className="text-xl font-bold font-mono text-orange-600">
             {budget.stale_feeds}
           </div>
-          <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+          <div className="text-[10px] text-[#6B7280] font-medium mt-1">
             Stale Telemetry
           </div>
         </div>
 
-        <div
-          style={{
-            background: 'var(--bg-tertiary)',
-            padding: '10px 8px',
-            borderRadius: '4px',
-            textAlign: 'center',
-            border: '1px solid var(--border-subtle)'
-          }}
-        >
-          <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--status-dropped)', fontFamily: 'var(--font-mono)' }}>
+        <div className="bg-[#F9FAFB] p-3 rounded-lg border border-[#E5E5E5] text-center">
+          <div className="text-xl font-bold font-mono text-red-600">
             {budget.unavailable_channels}
           </div>
-          <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+          <div className="text-[10px] text-[#6B7280] font-medium mt-1">
             Occluded Feeds
           </div>
         </div>
 
-        <div
-          style={{
-            background: 'var(--bg-tertiary)',
-            padding: '10px 8px',
-            borderRadius: '4px',
-            textAlign: 'center',
-            border: '1px solid var(--border-subtle)'
-          }}
-        >
-          <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--accent-amber)', fontFamily: 'var(--font-mono)' }}>
+        <div className="bg-[#F9FAFB] p-3 rounded-lg border border-[#E5E5E5] text-center">
+          <div className="text-xl font-bold font-mono text-amber-600">
             {budget.low_confidence_reports}
           </div>
-          <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+          <div className="text-[10px] text-[#6B7280] font-medium mt-1">
             Low Reliability
           </div>
         </div>

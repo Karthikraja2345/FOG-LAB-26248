@@ -12,6 +12,14 @@ from backend.app.realtime.manager import ws_manager
 
 router = APIRouter(prefix="/sessions", tags=["Sessions"])
 
+@router.get("", response_model=List[SessionResponse])
+def list_sessions(db: DBSession = Depends(get_db)):
+    results = []
+    for inst in list(session_service._live_sessions.values()):
+        db_s = db.query(SessionModel).filter_by(id=inst.session_id).first()
+        results.append(session_service._to_response(inst, db_s))
+    return results
+
 @router.post("", response_model=SessionResponse)
 def create_session(req: SessionCreateRequest, db: DBSession = Depends(get_db)):
     try:

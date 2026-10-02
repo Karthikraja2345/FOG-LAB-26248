@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MessageItem, RoleEnum } from '../types';
 import { sendTeamMessage } from '../services/api';
+import { Send, Users } from 'lucide-react';
 
 interface TeamPanelProps {
   sessionId: string;
@@ -43,55 +44,27 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
   };
 
   return (
-    <div
-      style={{
-        background: 'var(--bg-secondary)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: '6px',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        overflow: 'hidden'
-      }}
-    >
-      <div
-        style={{
-          padding: '12px 16px',
-          background: 'var(--bg-panel)',
-          borderBottom: '1px solid var(--border-subtle)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}
-      >
-        <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff', letterSpacing: '0.05em' }}>
-          SUB-UNIT COORDINATION NET
-        </span>
-        <span
-          style={{
-            fontSize: '11px',
-            fontFamily: 'var(--font-mono)',
-            color: 'var(--accent-cyan)'
-          }}
-        >
-          ROLE: {myRole.replace('_', ' ')}
+    <div className="bg-white border border-[#E5E5E5] rounded-xl flex flex-col h-full shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="px-5 py-3.5 border-b border-[#E5E5E5] bg-[#F9FAFB] flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-md bg-[#14213D] text-[#FCA311] flex items-center justify-center">
+            <Users size={15} />
+          </div>
+          <span className="font-serif text-sm font-bold text-[#14213D]">
+            Sub-Unit Coordination Net
+          </span>
+        </div>
+        <span className="text-xs font-mono font-semibold text-[#14213D] px-2 py-0.5 rounded bg-[#14213D]/5">
+          {myRole.replace('_', ' ')}
         </span>
       </div>
 
-      {/* Message list */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '12px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px'
-        }}
-      >
+      {/* Message List */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.length === 0 ? (
-          <div style={{ color: 'var(--text-muted)', fontSize: '11px', textAlign: 'center', padding: '20px' }}>
-            No traffic on tactical net. Use this channel to challenge conflicting reports and coordinate actions.
+          <div className="text-center py-10 text-xs text-[#6B7280]">
+            No traffic on tactical net. Use this radio link to challenge conflicting reports and coordinate with other roles.
           </div>
         ) : (
           messages.map((m) => {
@@ -99,90 +72,59 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             return (
               <div
                 key={m.message_id}
-                style={{
-                  alignSelf: isMe ? 'flex-end' : 'flex-start',
-                  maxWidth: '85%',
-                  background: isMe ? 'rgba(59, 130, 246, 0.15)' : 'var(--bg-tertiary)',
-                  border: `1px solid ${isMe ? 'rgba(59, 130, 246, 0.4)' : 'var(--border-subtle)'}`,
-                  borderRadius: '4px',
-                  padding: '8px 10px'
-                }}
+                className={`p-3 rounded-lg border text-xs ${
+                  isMe
+                    ? 'border-[#14213D]/20 bg-[#14213D]/5 ml-4'
+                    : 'border-[#E5E5E5] bg-[#F9FAFB] mr-4'
+                }`}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', marginBottom: '3px' }}>
-                  <span
-                    style={{
-                      fontSize: '10px',
-                      fontFamily: 'var(--font-mono)',
-                      fontWeight: 700,
-                      color:
-                        m.sender_role === 'TEAM_LEAD'
-                          ? 'var(--accent-cyan)'
-                          : m.sender_role === 'COORDINATION'
-                          ? 'var(--accent-green)'
-                          : 'var(--accent-amber)'
-                    }}
-                  >
+                <div className="flex justify-between items-center mb-1 text-[11px] font-mono">
+                  <span className="font-bold text-[#14213D]">
                     {m.sender_role.replace('_', ' ')}
+                    {isMe ? ' (You)' : ''}
                     {m.recipient_role && ` → ${m.recipient_role.replace('_', ' ')}`}
                   </span>
-                  <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                    T+{m.scenario_time}s
-                  </span>
+                  <span className="text-[#6B7280]">T+{Math.round(m.scenario_time)}s</span>
                 </div>
-                <div style={{ fontSize: '12px', color: '#fff', wordBreak: 'break-word' }}>
-                  {m.content}
-                </div>
+                <div className="text-[#14213D] leading-relaxed">{m.content}</div>
               </div>
             );
           })
         )}
       </div>
 
-      {/* Input form */}
-      <form
-        onSubmit={handleSend}
-        style={{
-          padding: '10px',
-          background: 'var(--bg-panel)',
-          borderTop: '1px solid var(--border-subtle)',
-          display: 'flex',
-          gap: '8px'
-        }}
-      >
-        <select
-          value={recipient}
-          onChange={(e) => setRecipient(e.target.value as any)}
-          style={{ width: '110px', fontSize: '11px', padding: '4px' }}
-        >
-          <option value="">NET (ALL)</option>
-          <option value="TEAM_LEAD">LEAD</option>
-          <option value="COORDINATION">COORD</option>
-          <option value="INFORMATION">INFO/SIG</option>
-        </select>
+      {/* Input Composer */}
+      <form onSubmit={handleSend} className="p-3 border-t border-[#E5E5E5] bg-[#F9FAFB] space-y-2">
+        <div className="flex gap-2">
+          <select
+            value={recipient}
+            onChange={(e) => setRecipient(e.target.value as RoleEnum | '')}
+            className="text-xs p-1.5 rounded border border-[#E5E5E5] bg-white text-[#14213D] focus:outline-none"
+          >
+            <option value="">Broadcast to All Roles</option>
+            <option value="TEAM_LEAD">Team Lead</option>
+            <option value="COORDINATION">Coordination Lead</option>
+            <option value="INFORMATION">Information Lead</option>
+          </select>
+        </div>
 
-        <input
-          type="text"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Transmit report, query delay, or issue order..."
-          style={{ flex: 1, fontSize: '12px' }}
-        />
-
-        <button
-          type="submit"
-          disabled={isSending || !content.trim()}
-          style={{
-            background: 'var(--accent-blue)',
-            color: '#fff',
-            border: 'none',
-            padding: '6px 14px',
-            fontSize: '11px',
-            fontWeight: 600,
-            borderRadius: '4px'
-          }}
-        >
-          TRANSMIT
-        </button>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Type tactical message or challenge feed..."
+            className="flex-1 text-xs px-3 py-2 rounded-lg border border-[#E5E5E5] bg-white text-[#14213D] placeholder-[#9CA3AF] focus:outline-none focus:border-[#14213D]"
+          />
+          <button
+            type="submit"
+            disabled={isSending || !content.trim()}
+            className="px-4 py-2 rounded-lg bg-[#14213D] text-white text-xs font-semibold hover:bg-[#0B132B] disabled:opacity-50 transition-all flex items-center gap-1.5"
+          >
+            <Send size={13} className="text-[#FCA311]" />
+            <span>Send</span>
+          </button>
+        </div>
       </form>
     </div>
   );

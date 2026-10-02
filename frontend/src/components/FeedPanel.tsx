@@ -1,6 +1,7 @@
 import React from 'react';
 import { TraineeFeedItem } from '../types';
 import { FeedStatusBadge } from './FeedStatus';
+import { Radio, AlertTriangle, ShieldAlert } from 'lucide-react';
 
 interface FeedPanelProps {
   feeds: TraineeFeedItem[];
@@ -9,45 +10,27 @@ interface FeedPanelProps {
 
 export const FeedPanel: React.FC<FeedPanelProps> = ({ feeds }) => {
   return (
-    <div
-      style={{
-        background: 'var(--bg-secondary)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: '6px',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        overflow: 'hidden'
-      }}
-    >
-      <div
-        style={{
-          padding: '12px 16px',
-          borderBottom: '1px solid var(--border-subtle)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          background: 'var(--bg-panel)'
-        }}
-      >
-        <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff', letterSpacing: '0.05em' }}>
-          INTELLIGENCE & SENSOR FEEDS
-        </span>
-        <span
-          style={{
-            fontSize: '11px',
-            fontFamily: 'var(--font-mono)',
-            color: 'var(--text-secondary)'
-          }}
-        >
-          {feeds.length} ACTIVE CHANNELS
+    <div className="bg-white border border-[#E5E5E5] rounded-xl flex flex-col h-full shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="px-5 py-4 border-b border-[#E5E5E5] bg-[#F9FAFB] flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-md bg-[#14213D] text-[#FCA311] flex items-center justify-center">
+            <Radio size={15} />
+          </div>
+          <span className="font-serif text-sm font-bold text-[#14213D]">
+            Tactical Sensor & Intelligence Feeds
+          </span>
+        </div>
+        <span className="text-xs font-mono text-[#6B7280]">
+          {feeds.length} Channels Monitored
         </span>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      {/* Feed List */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {feeds.length === 0 ? (
-          <div style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '24px', fontSize: '12px' }}>
-            No information feeds registered for this role.
+          <div className="text-center py-12 text-xs text-[#6B7280]">
+            No tactical feeds routed to this terminal role.
           </div>
         ) : (
           feeds.map((feed) => {
@@ -58,29 +41,23 @@ export const FeedPanel: React.FC<FeedPanelProps> = ({ feeds }) => {
             return (
               <div
                 key={feed.source_id}
-                style={{
-                  background: isDropped ? 'rgba(239, 68, 68, 0.05)' : 'var(--bg-tertiary)',
-                  border: `1px solid ${
-                    isConflicted
-                      ? 'var(--status-conflict)'
-                      : isDropped
-                      ? 'rgba(239, 68, 68, 0.4)'
-                      : isDelayed
-                      ? 'rgba(245, 158, 11, 0.4)'
-                      : 'var(--border-subtle)'
-                  }`,
-                  borderRadius: '4px',
-                  padding: '12px',
-                  transition: 'all 0.2s'
-                }}
+                className={`p-4 rounded-lg border transition-all ${
+                  isConflicted
+                    ? 'border-purple-300 bg-purple-50/30'
+                    : isDropped
+                    ? 'border-red-200 bg-red-50/20'
+                    : isDelayed
+                    ? 'border-amber-200 bg-amber-50/20'
+                    : 'border-[#E5E5E5] bg-white hover:border-[#14213D]/30'
+                }`}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                <div className="flex justify-between items-start mb-2">
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>
+                    <h4 className="text-xs font-bold text-[#14213D]">
                       {feed.source_name}
-                    </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
-                      ID: {feed.source_id} • Reliability: {Math.round(feed.reliability * 100)}% ({feed.confidence_class})
+                    </h4>
+                    <div className="text-[11px] text-[#6B7280] font-mono mt-0.5">
+                      {feed.source_id} • Reliability: {Math.round(feed.reliability * 100)}% ({feed.confidence_class})
                     </div>
                   </div>
                   <FeedStatusBadge
@@ -91,62 +68,26 @@ export const FeedPanel: React.FC<FeedPanelProps> = ({ feeds }) => {
                 </div>
 
                 {isDropped ? (
-                  <div
-                    style={{
-                      background: 'rgba(239, 68, 68, 0.1)',
-                      border: '1px dashed rgba(239, 68, 68, 0.3)',
-                      color: 'var(--accent-red)',
-                      padding: '8px 12px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontFamily: 'var(--font-mono)'
-                    }}
-                  >
-                    SIGNAL OCCLUDED: Channel unreachable or deliberately suppressed. Await recovery or rely on peer coordination.
+                  <div className="p-2.5 rounded bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+                    <ShieldAlert size={14} className="shrink-0" />
+                    <span>Telemetry link offline. Channel dropout active.</span>
                   </div>
                 ) : (
-                  <div>
-                    <div
-                      style={{
-                        background: 'var(--bg-primary)',
-                        padding: '8px 10px',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        color: isConflicted ? '#fbcfe8' : 'var(--text-primary)',
-                        marginBottom: '6px',
-                        borderLeft: isConflicted ? '3px solid var(--status-conflict)' : 'none'
-                      }}
-                    >
-                      {feed.content.summary || JSON.stringify(feed.content, null, 2)}
-                    </div>
-
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        fontSize: '10px',
-                        fontFamily: 'var(--font-mono)',
-                        color: 'var(--text-muted)'
-                      }}
-                    >
-                      <span>Gen: T+{feed.generated_at_time}s</span>
-                      <span>Delivered: T+{feed.received_at_time}s</span>
-                      <span>Age: {feed.age_seconds}s</span>
+                  <div className="space-y-2 mt-2">
+                    {/* Content Attributes */}
+                    <div className="p-2.5 rounded bg-[#F9FAFB] border border-[#E5E5E5] font-mono text-xs">
+                      {Object.entries(feed.content).map(([k, v]) => (
+                        <div key={k} className="flex justify-between py-0.5">
+                          <span className="text-[#6B7280]">{k.replace('_', ' ')}:</span>
+                          <span className="font-semibold text-[#14213D]">{String(v)}</span>
+                        </div>
+                      ))}
                     </div>
 
                     {isConflicted && (
-                      <div
-                        style={{
-                          marginTop: '6px',
-                          fontSize: '11px',
-                          color: 'var(--status-conflict)',
-                          fontWeight: 600,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px'
-                        }}
-                      >
-                        ⚠️ WARNING: Report conflicts directly with another sensor stream. Verify via team coordination.
+                      <div className="p-2 rounded bg-purple-50 border border-purple-200 text-purple-700 text-xs flex items-center gap-1.5 font-medium">
+                        <AlertTriangle size={13} className="shrink-0" />
+                        <span>Contradicts other sub-unit sensor reports. Verify before acting.</span>
                       </div>
                     )}
                   </div>

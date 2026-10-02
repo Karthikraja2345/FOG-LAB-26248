@@ -7,23 +7,20 @@ interface TimelineProps {
 }
 
 export const Timeline: React.FC<TimelineProps> = ({ events, filterRole }) => {
-  const getEventBadgeColor = (type: string) => {
+  const getEventBadge = (type: string) => {
     switch (type) {
       case 'DEGRADATION_STARTED':
-        return 'var(--accent-amber)';
+        return 'bg-amber-50 text-amber-700 border-amber-200';
       case 'DEGRADATION_ENDED':
-        return 'var(--accent-green)';
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
       case 'DECISION_SUBMITTED':
-        return 'var(--accent-cyan)';
+        return 'bg-blue-50 text-blue-700 border-blue-200';
       case 'MESSAGE_SENT':
-        return 'var(--accent-blue)';
+        return 'bg-slate-100 text-slate-700 border-slate-200';
       case 'INFORMATION_CONFLICT':
-        return 'var(--status-conflict)';
-      case 'SESSION_STARTED':
-      case 'SESSION_ENDED':
-        return 'var(--accent-purple)';
+        return 'bg-purple-50 text-purple-700 border-purple-200';
       default:
-        return 'var(--text-secondary)';
+        return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
@@ -32,86 +29,35 @@ export const Timeline: React.FC<TimelineProps> = ({ events, filterRole }) => {
     : events;
 
   return (
-    <div
-      style={{
-        background: 'var(--bg-secondary)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: '6px',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        overflow: 'hidden'
-      }}
-    >
-      <div
-        style={{
-          padding: '10px 14px',
-          background: 'var(--bg-panel)',
-          borderBottom: '1px solid var(--border-subtle)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}
-      >
-        <span style={{ fontSize: '12px', fontWeight: 700, color: '#fff', letterSpacing: '0.05em' }}>
-          SEQUENCED EVENT TIMELINE
-        </span>
-        <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
-          {filtered.length} EVENTS RECORDED
-        </span>
-      </div>
+    <div className="space-y-2.5 max-h-[480px] overflow-y-auto pr-1">
+      {filtered.length === 0 ? (
+        <div className="text-center py-8 text-xs text-[#6B7280]">
+          Zero events logged on timeline.
+        </div>
+      ) : (
+        filtered.map((evt) => (
+          <div
+            key={evt.event_id}
+            className="flex items-start gap-2.5 p-2.5 rounded-lg border border-[#E5E5E5] bg-white text-xs hover:border-[#14213D]/20 transition-all"
+          >
+            <span className="font-mono text-[11px] font-bold text-[#6B7280] w-12 shrink-0 pt-0.5">
+              T+{evt.scenario_time}s
+            </span>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {filtered.length === 0 ? (
-          <div style={{ color: 'var(--text-muted)', fontSize: '11px', textAlign: 'center', padding: '16px' }}>
-            No timeline events emitted yet.
-          </div>
-        ) : (
-          filtered.map((evt) => (
-            <div
-              key={evt.event_id}
-              style={{
-                display: 'flex',
-                gap: '10px',
-                alignItems: 'flex-start',
-                fontSize: '11px',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-                paddingBottom: '6px'
-              }}
+            <span
+              className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold border shrink-0 ${getEventBadge(
+                evt.event_type
+              )}`}
             >
-              <span
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  color: 'var(--text-muted)',
-                  width: '50px',
-                  flexShrink: 0
-                }}
-              >
-                T+{evt.scenario_time}s
-              </span>
+              {evt.event_type.replace('_', ' ')}
+            </span>
 
-              <span
-                style={{
-                  color: getEventBadgeColor(evt.event_type),
-                  fontWeight: 700,
-                  fontFamily: 'var(--font-mono)',
-                  flexShrink: 0,
-                  fontSize: '10px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  padding: '1px 5px',
-                  borderRadius: '2px'
-                }}
-              >
-                {evt.event_type}
-              </span>
-
-              <span style={{ color: '#fff', flex: 1, wordBreak: 'break-word' }}>
-                {evt.actor_id}: {JSON.stringify(evt.payload)}
-              </span>
-            </div>
-          ))
-        )}
-      </div>
+            <span className="text-[#14213D] leading-tight flex-1">
+              {evt.actor_id}: {JSON.stringify(evt.payload || {})}
+            </span>
+          </div>
+        ))
+      )}
     </div>
   );
 };

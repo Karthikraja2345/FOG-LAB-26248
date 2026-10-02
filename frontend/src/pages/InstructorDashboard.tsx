@@ -13,6 +13,12 @@ import { InformationAsymmetryMatrix } from '../components/InformationAsymmetryMa
 import { ContradictionHeatmap } from '../components/ContradictionHeatmap';
 import { UncertaintyPanel } from '../components/UncertaintyPanel';
 import { Timeline } from '../components/Timeline';
+import {
+  Play,
+  Pause,
+  Activity,
+  Square
+} from 'lucide-react';
 
 interface InstructorDashboardProps {
   session: SessionResponse;
@@ -59,7 +65,7 @@ export const InstructorDashboard: React.FC<InstructorDashboardProps> = ({ sessio
 
   // Periodic automatic ticking if session is active
   useEffect(() => {
-    if (!localState || localState.state !== 'ACTIVE' && localState.state !== 'DEGRADED') return;
+    if (!localState || (localState.state !== 'ACTIVE' && localState.state !== 'DEGRADED')) return;
 
     const interval = setInterval(async () => {
       try {
@@ -106,265 +112,164 @@ export const InstructorDashboard: React.FC<InstructorDashboardProps> = ({ sessio
   const currentScenarioTime = localState?.scenario_time || session.scenario_time;
 
   return (
-    <div style={{ padding: '16px 24px', maxWidth: '1600px', margin: '0 auto', width: '100%' }}>
+    <div className="w-full max-w-[1600px] mx-auto px-6 py-6">
       {/* Top Command Bar */}
-      <div
-        style={{
-          background: 'var(--bg-secondary)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: '6px',
-          padding: '14px 20px',
-          marginBottom: '16px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px'
-        }}
-      >
+      <div className="bg-white border border-[#E5E5E5] rounded-xl p-5 mb-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '16px', fontWeight: 700, color: '#fff' }}>
-              INSTRUCTOR CONTROL ROOM
+          <div className="flex items-center gap-2.5 mb-1.5">
+            <h2 className="font-serif text-2xl font-bold text-[#14213D]">
+              Instructor Command Console
+            </h2>
+            <span className="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-[#14213D]/10 text-[#14213D] border border-[#14213D]/20">
+              EXERCISE: {session.session_code}
             </span>
             <span
-              style={{
-                fontSize: '11px',
-                fontFamily: 'var(--font-mono)',
-                background: 'rgba(6, 182, 212, 0.15)',
-                color: 'var(--accent-cyan)',
-                border: '1px solid rgba(6, 182, 212, 0.3)',
-                padding: '2px 8px',
-                borderRadius: '3px'
-              }}
+              className={`px-2.5 py-0.5 rounded text-xs font-mono font-bold ${
+                currentState === 'ACTIVE' || currentState === 'DEGRADED'
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                  : 'bg-amber-50 text-amber-700 border border-amber-200'
+              }`}
             >
-              CODE: {session.session_code}
-            </span>
-            <span
-              style={{
-                fontSize: '11px',
-                fontFamily: 'var(--font-mono)',
-                background:
-                  currentState === 'ACTIVE' || currentState === 'DEGRADED'
-                    ? 'rgba(16, 185, 129, 0.2)'
-                    : 'rgba(245, 158, 11, 0.2)',
-                color:
-                  currentState === 'ACTIVE' || currentState === 'DEGRADED'
-                    ? 'var(--accent-green)'
-                    : 'var(--accent-amber)',
-                padding: '2px 8px',
-                borderRadius: '3px',
-                fontWeight: 700
-              }}
-            >
-              STATUS: {currentState}
+              {currentState}
             </span>
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Scenario: <strong>{session.scenario_title}</strong> • Seed: <span className="mono">{session.seed}</span>
-          </div>
+          <p className="text-xs text-[#6B7280]">
+            Scenario: <strong>{session.scenario_title}</strong> • Seed: <span className="font-mono">{session.seed}</span>
+          </p>
         </div>
 
-        {/* Simulation Clock & Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div
-            style={{
-              background: 'var(--bg-primary)',
-              border: '1px solid var(--border-subtle)',
-              padding: '6px 14px',
-              borderRadius: '4px',
-              textAlign: 'center'
-            }}
-          >
-            <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-              SIMULATION TIME
+        {/* Simulation Clock & Operational Controls */}
+        <div className="flex items-center gap-3">
+          <div className="bg-[#F9FAFB] border border-[#E5E5E5] px-4 py-2 rounded-lg text-center">
+            <div className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wider">
+              Elapsed Time
             </div>
-            <div style={{ fontSize: '18px', fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--accent-cyan)' }}>
+            <div className="text-xl font-bold font-mono text-[#14213D]">
               T+{Math.round(currentScenarioTime)}s
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '6px' }}>
+          <div className="flex items-center gap-2">
             {currentState === 'BRIEFING' && (
               <button
                 onClick={handleStart}
-                style={{
-                  background: 'var(--accent-green)',
-                  color: '#000',
-                  fontWeight: 700,
-                  padding: '8px 16px',
-                  borderRadius: '4px',
-                  border: 'none',
-                  fontSize: '12px'
-                }}
+                className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition-all flex items-center gap-1.5 shadow-sm"
               >
-                ▶ START EXERCISE
+                <Play size={14} />
+                <span>Start Exercise</span>
               </button>
             )}
 
             {(currentState === 'ACTIVE' || currentState === 'DEGRADED') && (
               <button
                 onClick={handlePause}
-                style={{
-                  background: 'var(--accent-amber)',
-                  color: '#000',
-                  fontWeight: 700,
-                  padding: '8px 14px',
-                  borderRadius: '4px',
-                  border: 'none',
-                  fontSize: '12px'
-                }}
+                className="px-4 py-2 rounded-lg bg-amber-500 text-black text-xs font-semibold hover:bg-amber-600 transition-all flex items-center gap-1.5 shadow-sm"
               >
-                ⏸ PAUSE
+                <Pause size={14} />
+                <span>Pause</span>
               </button>
             )}
 
             {currentState === 'SESSION_PAUSED' && (
               <button
                 onClick={handleResume}
-                style={{
-                  background: 'var(--accent-green)',
-                  color: '#000',
-                  fontWeight: 700,
-                  padding: '8px 14px',
-                  borderRadius: '4px',
-                  border: 'none',
-                  fontSize: '12px'
-                }}
+                className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition-all flex items-center gap-1.5 shadow-sm"
               >
-                ▶ RESUME
+                <Play size={14} />
+                <span>Resume</span>
               </button>
             )}
 
             <button
               onClick={handleEnd}
-              style={{
-                background: 'rgba(239, 68, 68, 0.2)',
-                color: 'var(--accent-red)',
-                border: '1px solid rgba(239, 68, 68, 0.4)',
-                padding: '8px 14px',
-                borderRadius: '4px',
-                fontSize: '12px',
-                fontWeight: 600
-              }}
+              className="px-3.5 py-2 rounded-lg bg-white border border-red-300 text-red-600 text-xs font-medium hover:bg-red-50 transition-all flex items-center gap-1.5"
             >
-              ⏹ END EXERCISE
+              <Square size={13} />
+              <span>Conclude</span>
             </button>
+
+            {/* Manual Step Controls */}
+            <div className="flex items-center gap-1 ml-2 border-l border-[#E5E5E5] pl-3">
+              <button
+                onClick={() => handleManualTick(5.0)}
+                disabled={isTicking}
+                className="px-2.5 py-1.5 rounded bg-white border border-[#E5E5E5] text-xs font-mono text-[#14213D] hover:bg-[#F9FAFB]"
+              >
+                +5s
+              </button>
+              <button
+                onClick={() => handleManualTick(30.0)}
+                disabled={isTicking}
+                className="px-2.5 py-1.5 rounded bg-white border border-[#E5E5E5] text-xs font-mono text-[#14213D] hover:bg-[#F9FAFB]"
+              >
+                +30s
+              </button>
+            </div>
 
             <button
               onClick={onNavigateAAR}
-              style={{
-                background: 'var(--accent-blue)',
-                color: '#fff',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                fontSize: '12px',
-                fontWeight: 600
-              }}
+              className="ml-3 px-4 py-2 rounded-lg bg-[#FCA311] text-black text-xs font-semibold hover:bg-[#E08C05] transition-all flex items-center gap-1.5 shadow-sm"
             >
-              📊 VIEW AAR & LEDGER →
-            </button>
-          </div>
-
-          {/* Manual step controls */}
-          <div style={{ display: 'flex', gap: '4px' }}>
-            <button
-              onClick={() => handleManualTick(5.0)}
-              disabled={isTicking}
-              title="Advance 5 seconds"
-              style={{
-                background: 'var(--bg-tertiary)',
-                color: 'var(--text-secondary)',
-                border: '1px solid var(--border-subtle)',
-                padding: '6px 10px',
-                fontSize: '11px',
-                fontFamily: 'var(--font-mono)'
-              }}
-            >
-              +5s
-            </button>
-            <button
-              onClick={() => handleManualTick(15.0)}
-              disabled={isTicking}
-              title="Advance 15 seconds"
-              style={{
-                background: 'var(--bg-tertiary)',
-                color: 'var(--text-secondary)',
-                border: '1px solid var(--border-subtle)',
-                padding: '6px 10px',
-                fontSize: '11px',
-                fontFamily: 'var(--font-mono)'
-              }}
-            >
-              +15s
+              <Activity size={14} />
+              <span>View AAR</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Grid Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '16px', marginBottom: '16px' }}>
-        {/* Left Column: Ground truth & Asymmetry */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* Ground Truth Reality Banner */}
-          <div
-            style={{
-              background: 'var(--bg-secondary)',
-              border: '1px solid var(--accent-cyan)',
-              borderRadius: '6px',
-              padding: '14px'
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent-cyan)', letterSpacing: '0.05em' }}>
-                GROUND TRUTH OPERATIONAL REALITY (CONCEALED FROM TRAINEES)
-              </span>
-              <span style={{ fontSize: '10px', color: 'var(--accent-red)', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
-                CLASSIFIED / INSTRUCTOR ONLY
-              </span>
-            </div>
-            <div
-              style={{
-                background: 'var(--bg-primary)',
-                padding: '10px',
-                borderRadius: '4px',
-                fontSize: '12px',
-                color: '#fff',
-                fontFamily: 'var(--font-mono)'
-              }}
-            >
-              {JSON.stringify(localState?.ground_truth_world_state || scenarioPkg?.world_state, null, 2)}
-            </div>
-          </div>
-
-          {/* Uncertainty Budget */}
-          {localState?.uncertainty_budget && (
-            <UncertaintyPanel budget={localState.uncertainty_budget} />
-          )}
-
-          {/* Information Asymmetry Matrix */}
-          <InformationAsymmetryMatrix matrix={localState?.asymmetry_matrix || []} />
-        </div>
-
-        {/* Right Column: Fog Composer & Contradictions */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Main Grid: Left Ingestion & Injects, Right Asymmetry & Contradiction */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Left Column (2 Cols wide on desktop): Degradation Composer and Injects */}
+        <div className="xl:col-span-2 space-y-6">
           {scenarioPkg && (
             <DegradationComposer
               sessionId={session.session_id}
               sources={scenarioPkg.information_sources}
-              activeDegradations={localState?.active_degradations || []}
+              activeDegradations={localState?.active_injects || []}
               onInjectCommitted={reloadState}
             />
           )}
 
-          <ContradictionHeatmap conflicts={localState?.active_conflicts || []} />
-        </div>
-      </div>
+          {/* Realtime Asymmetry Matrix */}
+          <div className="bg-white border border-[#E5E5E5] rounded-xl p-6 shadow-sm">
+            <h3 className="font-serif text-lg font-bold text-[#14213D] mb-4">
+              Real-Time Information Asymmetry Matrix
+            </h3>
+            <InformationAsymmetryMatrix
+              matrix={localState?.asymmetry_matrix || []}
+            />
+          </div>
 
-      {/* Bottom Timeline */}
-      <div style={{ height: '240px' }}>
-        <Timeline events={timelineEvents} />
+          {/* Contradiction Heatmap */}
+          <div className="bg-white border border-[#E5E5E5] rounded-xl p-6 shadow-sm">
+            <h3 className="font-serif text-lg font-bold text-[#14213D] mb-4">
+              Active Sensor Contradictions
+            </h3>
+            <ContradictionHeatmap
+              conflicts={localState?.active_conflicts || []}
+            />
+          </div>
+        </div>
+
+        {/* Right Column: Uncertainty Budget and Event Timeline */}
+        <div className="space-y-6">
+          <UncertaintyPanel
+            budget={localState?.uncertainty_budget || {
+              unresolved_contradictions: 0,
+              stale_feeds: 0,
+              unavailable_channels: 0,
+              low_confidence_reports: 0,
+              total_uncertainty_score: 0
+            }}
+          />
+
+          <div className="bg-white border border-[#E5E5E5] rounded-xl p-6 shadow-sm">
+            <h3 className="font-serif text-base font-bold text-[#14213D] mb-3">
+              Discrete Event Ledger
+            </h3>
+            <Timeline events={timelineEvents} />
+          </div>
+        </div>
       </div>
     </div>
   );

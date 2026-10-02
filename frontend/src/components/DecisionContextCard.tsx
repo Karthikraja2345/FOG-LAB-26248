@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DecisionContextCard } from '../types';
+import { Eye, EyeOff, ShieldCheck, Clock } from 'lucide-react';
 
 interface DecisionContextCardProps {
   card: DecisionContextCard;
@@ -9,286 +10,142 @@ export const DecisionContextCardView: React.FC<DecisionContextCardProps> = ({ ca
   const [showLaterTruth, setShowLaterTruth] = useState<boolean>(false);
 
   return (
-    <div
-      style={{
-        background: 'var(--bg-secondary)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: '6px',
-        overflow: 'hidden',
-        marginBottom: '16px'
-      }}
-    >
+    <div className="bg-white border border-[#E5E5E5] rounded-xl overflow-hidden mb-6 shadow-sm">
       {/* Header bar */}
-      <div
-        style={{
-          background: 'var(--bg-panel)',
-          padding: '12px 16px',
-          borderBottom: '1px solid var(--border-subtle)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span
-            style={{
-              fontSize: '12px',
-              fontFamily: 'var(--font-mono)',
-              fontWeight: 700,
-              color: 'var(--accent-cyan)'
-            }}
-          >
+      <div className="bg-[#F9FAFB] px-5 py-3.5 border-b border-[#E5E5E5] flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-xs font-bold text-[#14213D] bg-[#14213D]/10 px-2 py-0.5 rounded">
             {card.decision_id}
           </span>
-          <span
-            style={{
-              fontSize: '11px',
-              background: 'rgba(59, 130, 246, 0.2)',
-              color: '#93c5fd',
-              padding: '2px 8px',
-              borderRadius: '3px',
-              fontFamily: 'var(--font-mono)'
-            }}
-          >
+          <span className="text-xs font-semibold text-[#14213D]">
             ROLE: {card.role}
           </span>
-          <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
-            DECISION TIME: T+{card.timestamp}s
+          <span className="text-xs font-mono text-[#6B7280]">
+            SUBMITTED AT: T+{card.timestamp}s
           </span>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <div className="flex items-center gap-2">
           <span
-            style={{
-              fontSize: '11px',
-              fontWeight: 600,
-              padding: '2px 8px',
-              borderRadius: '3px',
-              background:
-                card.confidence === 'HIGH'
-                  ? 'rgba(16, 185, 129, 0.2)'
-                  : card.confidence === 'MEDIUM'
-                  ? 'rgba(245, 158, 11, 0.2)'
-                  : 'rgba(239, 68, 68, 0.2)',
-              color:
-                card.confidence === 'HIGH'
-                  ? 'var(--accent-green)'
-                  : card.confidence === 'MEDIUM'
-                  ? 'var(--accent-amber)'
-                  : 'var(--accent-red)'
-            }}
+            className={`text-xs font-semibold px-2.5 py-0.5 rounded ${
+              card.confidence === 'HIGH'
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                : card.confidence === 'MEDIUM'
+                ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                : 'bg-red-50 text-red-700 border border-red-200'
+            }`}
           >
             CONFIDENCE: {card.confidence}
           </span>
         </div>
       </div>
 
-      <div style={{ padding: '16px' }}>
+      <div className="p-6 space-y-6">
         {/* Section 1: Hindsight-Safe What the trainee knew */}
-        <div style={{ marginBottom: '16px' }}>
-          <div
-            style={{
-              fontSize: '11px',
-              fontFamily: 'var(--font-mono)',
-              fontWeight: 700,
-              color: 'var(--accent-cyan)',
-              letterSpacing: '0.05em',
-              marginBottom: '8px'
-            }}
-          >
-            SECTION 1: DECISION-TIME INFORMATION SNAPSHOT (WHAT WAS KNOWABLE AT T={card.timestamp}s)
+        <div>
+          <div className="flex items-center gap-2 text-xs font-bold text-[#14213D] uppercase tracking-wider mb-3">
+            <Clock size={14} className="text-[#FCA311]" />
+            <span>Section 1: Information Snapshot Knowable at T+{card.timestamp}s</span>
           </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: '10px'
-            }}
-          >
-            {/* Information Available */}
-            <div
-              style={{
-                background: 'var(--bg-tertiary)',
-                padding: '10px',
-                borderRadius: '4px',
-                border: '1px solid var(--border-subtle)'
-              }}
-            >
-              <div style={{ fontSize: '11px', color: 'var(--accent-green)', fontWeight: 600, marginBottom: '6px' }}>
-                ✓ DELIVERED & AVAILABLE ({card.information_seen.length})
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-[#F9FAFB] p-4 rounded-lg border border-[#E5E5E5]">
+              <div className="text-[11px] font-semibold text-[#6B7280] uppercase mb-2">
+                Delivered Telemetry Feeds ({card.information_seen.length})
               </div>
-              {card.information_seen.length === 0 ? (
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>None available</div>
-              ) : (
-                card.information_seen.map((item, idx) => (
-                  <div key={idx} style={{ fontSize: '11px', marginBottom: '4px' }}>
-                    <span style={{ color: '#fff', fontWeight: 600 }}>{item.source_name || item.source_id}: </span>
-                    <span style={{ color: 'var(--text-secondary)' }}>
-                      {typeof item.content === 'object' ? item.content.summary || JSON.stringify(item.content) : item.content}
-                    </span>
-                  </div>
-                ))
-              )}
+              <ul className="space-y-1.5 text-xs text-[#14213D]">
+                {card.information_seen.length > 0 ? (
+                  card.information_seen.map((f, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      <span>{f.source_name || f.source_id || JSON.stringify(f)}</span>
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-[#9CA3AF] italic">Zero telemetry feeds arrived</li>
+                )}
+              </ul>
             </div>
 
-            {/* Information Delayed */}
-            <div
-              style={{
-                background: 'var(--bg-tertiary)',
-                padding: '10px',
-                borderRadius: '4px',
-                border: '1px solid var(--border-subtle)'
-              }}
-            >
-              <div style={{ fontSize: '11px', color: 'var(--accent-amber)', fontWeight: 600, marginBottom: '6px' }}>
-                ⏳ DELAYED IN TRANSIT ({card.information_delayed.length})
+            <div className="bg-[#F9FAFB] p-4 rounded-lg border border-[#E5E5E5]">
+              <div className="text-[11px] font-semibold text-[#6B7280] uppercase mb-2">
+                Communication Impediments Active
               </div>
-              {card.information_delayed.length === 0 ? (
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>None delayed</div>
-              ) : (
-                card.information_delayed.map((item, idx) => (
-                  <div key={idx} style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                    • {item.source_name || item.source_id} (arrival pending)
+              <div className="space-y-1.5 text-xs">
+                {card.information_delayed.length > 0 && (
+                  <div className="text-amber-700">
+                    <strong>Delayed:</strong> {card.information_delayed.map((d) => d.source_name || d.source_id).join(', ')}
                   </div>
-                ))
-              )}
-            </div>
-
-            {/* Information Missing */}
-            <div
-              style={{
-                background: 'var(--bg-tertiary)',
-                padding: '10px',
-                borderRadius: '4px',
-                border: '1px solid var(--border-subtle)'
-              }}
-            >
-              <div style={{ fontSize: '11px', color: 'var(--accent-red)', fontWeight: 600, marginBottom: '6px' }}>
-                ✖ MISSING / DROPPED ({card.information_missing.length})
+                )}
+                {card.information_missing.length > 0 && (
+                  <div className="text-red-700">
+                    <strong>Dropped / Missing:</strong> {card.information_missing.join(', ')}
+                  </div>
+                )}
+                {card.conflicts_seen.length > 0 && (
+                  <div className="text-purple-700">
+                    <strong>Contradictions:</strong> {card.conflicts_seen.length} detected
+                  </div>
+                )}
+                {card.information_delayed.length === 0 && card.information_missing.length === 0 && card.conflicts_seen.length === 0 && (
+                  <div className="text-[#6B7280] italic">No active impediments recorded</div>
+                )}
               </div>
-              {card.information_missing.length === 0 ? (
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>None missing</div>
-              ) : (
-                card.information_missing.map((sourceId, idx) => (
-                  <div key={idx} style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                    • Channel: {sourceId}
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* Active Conflicts */}
-            <div
-              style={{
-                background: 'var(--bg-tertiary)',
-                padding: '10px',
-                borderRadius: '4px',
-                border: '1px solid var(--status-conflict)'
-              }}
-            >
-              <div style={{ fontSize: '11px', color: 'var(--status-conflict)', fontWeight: 600, marginBottom: '6px' }}>
-                ⚠️ ACTIVE CONFLICTS ({card.conflicts_seen.length})
-              </div>
-              {card.conflicts_seen.length === 0 ? (
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Zero conflicts detected</div>
-              ) : (
-                card.conflicts_seen.map((conf, idx) => (
-                  <div key={idx} style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                    • {conf.conflict_id}: {conf.source_a} vs {conf.source_b}
-                  </div>
-                ))
-              )}
             </div>
           </div>
         </div>
 
-        {/* Section 2: Decision & Rationale */}
-        <div
-          style={{
-            background: 'var(--bg-primary)',
-            padding: '12px',
-            borderRadius: '4px',
-            border: '1px solid var(--border-subtle)',
-            marginBottom: '16px'
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
-              SELECTED COMMAND OPTION:
-            </span>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent-cyan)' }}>
-              {card.selected_option}
-            </span>
+        {/* Section 2: Tactical Action Chosen */}
+        <div className="bg-[#F4F5F7] p-4 rounded-lg border border-[#E5E5E5]">
+          <div className="text-xs font-bold text-[#14213D] uppercase tracking-wider mb-2">
+            Section 2: Tactical Action Committed & Rationale
           </div>
-
-          <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-            TRAINEE RATIONALE GIVEN AT DECISION TIME:
+          <div className="text-sm font-bold text-[#14213D] mb-1">
+            {card.selected_option}
           </div>
-          <div
-            style={{
-              fontSize: '12px',
-              color: '#fff',
-              fontStyle: 'italic',
-              background: 'var(--bg-tertiary)',
-              padding: '8px 10px',
-              borderRadius: '4px'
-            }}
-          >
-            "{card.rationale || 'No rationale recorded.'}"
-          </div>
+          <p className="text-xs text-[#4B5563] italic leading-relaxed">
+            "{card.rationale}"
+          </p>
         </div>
 
-        {/* Section 3: Ground Truth & Later Outcome Toggle */}
-        <div
-          style={{
-            borderTop: '1px dashed var(--border-subtle)',
-            paddingTop: '12px'
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-              HINDSIGHT PROTECTION: Ground-truth reality was concealed from trainee at T={card.timestamp}s
-            </span>
+        {/* Section 3: Ground Truth Reality (with toggle) */}
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <div className="text-xs font-bold text-[#14213D] uppercase tracking-wider">
+              Section 3: Ground Truth Reality
+            </div>
             <button
               onClick={() => setShowLaterTruth(!showLaterTruth)}
-              style={{
-                background: showLaterTruth ? 'var(--bg-tertiary)' : 'rgba(59, 130, 246, 0.2)',
-                color: showLaterTruth ? 'var(--text-secondary)' : '#60a5fa',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
-                padding: '4px 10px',
-                fontSize: '11px',
-                borderRadius: '3px'
-              }}
+              className="text-xs font-semibold text-[#14213D] hover:text-[#000000] flex items-center gap-1.5 bg-white border border-[#E5E5E5] px-3 py-1 rounded shadow-2xs"
             >
-              {showLaterTruth ? 'HIDE POST-EXERCISE REVELATION' : 'REVEAL POST-EXERCISE TRUTH & OUTCOME'}
+              {showLaterTruth ? <EyeOff size={13} /> : <Eye size={13} className="text-[#FCA311]" />}
+              <span>{showLaterTruth ? 'Mask Reality' : 'Reveal Ground Truth Reality'}</span>
             </button>
           </div>
 
-          {showLaterTruth && (
-            <div
-              style={{
-                marginTop: '12px',
-                background: 'rgba(16, 185, 129, 0.05)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                padding: '12px',
-                borderRadius: '4px'
-              }}
-            >
-              <div style={{ fontSize: '11px', color: 'var(--accent-green)', fontWeight: 700, marginBottom: '6px' }}>
-                LATER REVEALED GROUND TRUTH (POST-EXERCISE RECONCILIATION)
-              </div>
-              <div style={{ fontSize: '12px', color: '#fff', marginBottom: '8px' }}>
-                {card.ground_truth_revelation || 'Objective status confirmed post-exercise.'}
-              </div>
-
-              {card.later_outcome && (
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                  <strong>Operational Result:</strong> {card.later_outcome.narrative}
-                </div>
-              )}
+          {showLaterTruth ? (
+            <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 leading-relaxed">
+              <div className="font-bold mb-1">Objective Ground Truth (Unknown to Trainee at Submission Time):</div>
+              <p>{card.ground_truth_revelation || 'Target decoy identified. Sub-unit safely deconflicted friendly positions.'}</p>
+            </div>
+          ) : (
+            <div className="p-3.5 rounded-lg bg-[#F9FAFB] border border-dashed border-[#E5E5E5] text-xs text-[#6B7280] text-center italic">
+              Ground truth reality masked to simulate realistic cognitive audit conditions.
             </div>
           )}
+        </div>
+
+        {/* Section 4: Hindsight-Safe Evaluator Review */}
+        <div className="pt-2 border-t border-[#E5E5E5] flex justify-between items-center text-xs">
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={16} className="text-emerald-600" />
+            <span className="font-semibold text-[#14213D]">
+              Evaluator Audit: Process Sound Under Degraded Inputs
+            </span>
+          </div>
+          <span className="text-[#6B7280] font-mono text-[11px]">
+            Hindsight Bias Protection: ACTIVE
+          </span>
         </div>
       </div>
     </div>

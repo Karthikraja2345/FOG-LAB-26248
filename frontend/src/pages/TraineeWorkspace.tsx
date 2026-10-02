@@ -8,6 +8,7 @@ import { FeedPanel } from '../components/FeedPanel';
 import { DecisionPanel } from '../components/DecisionPanel';
 import { TeamPanel } from '../components/TeamPanel';
 import { UncertaintyPanel } from '../components/UncertaintyPanel';
+import { Wifi } from 'lucide-react';
 
 interface TraineeWorkspaceProps {
   session: SessionResponse;
@@ -73,130 +74,73 @@ export const TraineeWorkspace: React.FC<TraineeWorkspaceProps> = ({ session }) =
   const messages = traineeState?.messages || [];
 
   return (
-    <div style={{ padding: '16px 20px', maxWidth: '1600px', margin: '0 auto', width: '100%', height: 'calc(100vh - 84px)', display: 'flex', flexDirection: 'column' }}>
-      {/* Top Trainee Bar */}
-      <div
-        style={{
-          background: 'var(--bg-secondary)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: '6px',
-          padding: '10px 16px',
-          marginBottom: '12px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '10px'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
-              TERMINAL ROLE:
+    <div className="w-full max-w-[1600px] mx-auto px-6 py-6 min-h-[calc(100vh-80px)] flex flex-col">
+      {/* Top Station Header */}
+      <div className="bg-white border border-[#E5E5E5] rounded-xl p-4 mb-6 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+              Tactical Terminal Role:
             </span>
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value as RoleEnum)}
-              style={{
-                fontSize: '12px',
-                fontWeight: 700,
-                color: 'var(--accent-cyan)',
-                background: 'var(--bg-tertiary)',
-                borderColor: 'var(--accent-cyan)'
-              }}
+              className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-[#E5E5E5] bg-[#F9FAFB] text-[#14213D] focus:outline-none focus:border-[#14213D]"
             >
-              <option value="TEAM_LEAD">TEAM LEAD (Command Authority)</option>
-              <option value="COORDINATION">COORDINATION (Tactical Operations)</option>
-              <option value="INFORMATION">INFORMATION (Signals & EW)</option>
+              <option value="TEAM_LEAD">Team Lead (Convoy Commander)</option>
+              <option value="COORDINATION">Coordination Lead (Operations)</option>
+              <option value="INFORMATION">Information Lead (Signals / Spectrum)</option>
             </select>
           </div>
 
-          <span
-            style={{
-              fontSize: '11px',
-              fontFamily: 'var(--font-mono)',
-              background: 'rgba(59, 130, 246, 0.15)',
-              color: '#93c5fd',
-              padding: '2px 8px',
-              borderRadius: '3px'
-            }}
-          >
-            SESSION: {session.session_code}
+          <span className="text-xs font-mono px-2.5 py-1 rounded bg-[#14213D]/5 text-[#14213D] font-bold border border-[#14213D]/10">
+            EXERCISE: {session.session_code}
           </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
-            <span
-              style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: isConnected ? 'var(--accent-green)' : 'var(--accent-red)'
-              }}
-            />
-            <span>{isConnected ? 'TACTICAL LINK ACTIVE' : 'RECONNECTING...'}</span>
+        {/* Status Indicators */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 text-xs font-mono text-[#6B7280]">
+            <Wifi size={13} className={isConnected ? 'text-emerald-500' : 'text-red-500'} />
+            <span>{isConnected ? 'TACTICAL DATA-LINK ONLINE' : 'DISCONNECTED'}</span>
           </div>
 
-          <div
-            style={{
-              background: 'var(--bg-primary)',
-              border: '1px solid var(--border-subtle)',
-              padding: '4px 12px',
-              borderRadius: '4px',
-              fontSize: '14px',
-              fontWeight: 700,
-              fontFamily: 'var(--font-mono)',
-              color: 'var(--accent-cyan)'
-            }}
-          >
-            T+{Math.round(scenarioTime)}s
+          <div className="bg-[#F9FAFB] border border-[#E5E5E5] px-3.5 py-1.5 rounded-lg text-center">
+            <span className="text-[10px] font-semibold text-[#6B7280] uppercase mr-2">Time:</span>
+            <span className="text-sm font-mono font-bold text-[#14213D]">T+{Math.round(scenarioTime)}s</span>
           </div>
         </div>
       </div>
 
-      {/* Main 3-Column Command Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1.4fr 1fr', gap: '12px', flex: 1, minHeight: 0 }}>
-        {/* Left Column: Intelligence Feeds */}
-        <div style={{ height: '100%', minHeight: 0 }}>
+      {/* 3-Column Tactical Workspace */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
+        {/* Left Column (4 cols): Sensor Feeds */}
+        <div className="lg:col-span-4 h-[650px]">
           <FeedPanel feeds={feeds} scenarioTime={scenarioTime} />
         </div>
 
-        {/* Center Column: Tactical Situation & Decision Panel */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', height: '100%', minHeight: 0, overflowY: 'auto' }}>
-          {/* Tactical Context Window */}
-          <div
-            style={{
-              background: 'var(--bg-secondary)',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '6px',
-              padding: '14px'
-            }}
-          >
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>
-              OPERATIONAL SITUATION: {session.scenario_title}
-            </div>
-            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-              You are deployed as <strong>{selectedRole.replace('_', ' ')}</strong>. Due to electronic jamming and sensor lag, intelligence streams may be conflicting, delayed, or occluded. Cross-check reports with your unit members over the tactical net before authorizing irrevocable maneuvers.
-            </p>
-          </div>
-
-          {/* Uncertainty Budget for Trainee */}
-          {traineeState?.uncertainty_budget && (
-            <UncertaintyPanel budget={traineeState.uncertainty_budget} />
-          )}
-
-          {/* Decision Panel */}
+        {/* Center Column (4 cols): Tactical Decision Panel */}
+        <div className="lg:col-span-4 space-y-6">
           <DecisionPanel
             decisionPoint={decisionPoint}
             role={selectedRole}
             onSubmit={handleDecisionSubmit}
             isSubmitting={submitting}
           />
+
+          <UncertaintyPanel
+            budget={traineeState?.uncertainty_budget || {
+              unresolved_contradictions: 0,
+              stale_feeds: 0,
+              unavailable_channels: 0,
+              low_confidence_reports: 0,
+              total_uncertainty_score: 0
+            }}
+          />
         </div>
 
-        {/* Right Column: Tactical Coordination Net */}
-        <div style={{ height: '100%', minHeight: 0 }}>
+        {/* Right Column (4 cols): Team Coordination Net */}
+        <div className="lg:col-span-4 h-[650px]">
           <TeamPanel
             sessionId={session.session_id}
             myRole={selectedRole}

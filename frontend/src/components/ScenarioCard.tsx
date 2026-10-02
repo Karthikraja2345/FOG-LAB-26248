@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScenarioPackage } from '../types';
+import { Clock, Users, Radio, CheckCircle2, ChevronRight } from 'lucide-react';
 
 interface ScenarioCardProps {
   scenario: ScenarioPackage;
@@ -15,83 +16,66 @@ export const ScenarioCard: React.FC<ScenarioCardProps> = ({
   return (
     <div
       onClick={() => onSelect(scenario)}
-      style={{
-        background: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'var(--bg-secondary)',
-        border: `1px solid ${isSelected ? 'var(--accent-blue)' : 'var(--border-subtle)'}`,
-        borderRadius: '6px',
-        padding: '16px',
-        cursor: 'pointer',
-        transition: 'all 0.2s',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between'
-      }}
+      className={`relative rounded-xl p-6 cursor-pointer transition-all duration-200 flex flex-col justify-between ${
+        isSelected
+          ? 'bg-white border-2 border-[#FCA311] shadow-md ring-2 ring-[#FCA311]/20'
+          : 'bg-white border border-[#E5E5E5] hover:border-[#14213D]/30 shadow-sm hover:shadow-md'
+      }`}
     >
       <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-          <span
-            style={{
-              fontSize: '11px',
-              fontFamily: 'var(--font-mono)',
-              background: 'rgba(6, 182, 212, 0.15)',
-              color: 'var(--accent-cyan)',
-              padding: '2px 6px',
-              borderRadius: '3px'
-            }}
-          >
+        <div className="flex justify-between items-center mb-3">
+          <span className="text-xs font-mono px-2.5 py-1 rounded bg-[#14213D]/5 text-[#14213D] font-semibold border border-[#14213D]/10">
             {scenario.scenario_id.toUpperCase()} • v{scenario.version}
           </span>
-          <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
-            ⏱ {Math.round(scenario.duration_seconds / 60)} MIN
+          <span className="text-xs font-mono text-[#6B7280] flex items-center gap-1">
+            <Clock size={13} className="text-[#FCA311]" />
+            {Math.round(scenario.duration_seconds / 60)} MIN
           </span>
         </div>
 
-        <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>
+        <h3 className="font-serif text-lg font-bold text-[#14213D] mb-2 leading-snug">
           {scenario.title}
         </h3>
 
-        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '12px' }}>
+        <p className="text-xs text-[#4B5563] leading-relaxed mb-4 line-clamp-3">
           {scenario.description}
         </p>
 
-        <div style={{ marginBottom: '12px' }}>
-          <div style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: '4px' }}>
-            LEARNING OBJECTIVES:
+        <div className="mb-4 bg-[#F9FAFB] rounded-lg p-3 border border-[#E5E5E5]">
+          <div className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wider mb-2">
+            Learning Objectives:
           </div>
-          <ul style={{ paddingLeft: '16px', fontSize: '11px', color: 'var(--text-secondary)' }}>
-            {scenario.learning_objectives.map((obj, i) => (
-              <li key={i} style={{ marginBottom: '2px' }}>
-                {obj}
+          <ul className="space-y-1 text-[11px] text-[#4B5563]">
+            {scenario.learning_objectives.slice(0, 2).map((obj, i) => (
+              <li key={i} className="flex items-start gap-1.5">
+                <CheckCircle2 size={12} className="text-emerald-600 mt-0.5 shrink-0" />
+                <span className="line-clamp-1">{obj}</span>
               </li>
             ))}
           </ul>
         </div>
       </div>
 
-      <div
-        style={{
-          borderTop: '1px solid var(--border-subtle)',
-          paddingTop: '10px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}
-      >
-        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-          {scenario.roles.length} ROLES • {scenario.information_sources.length} FEEDS
-        </span>
+      <div className="border-t border-[#E5E5E5] pt-3 flex justify-between items-center">
+        <div className="flex items-center gap-3 text-xs text-[#6B7280] font-mono">
+          <span className="flex items-center gap-1">
+            <Users size={13} /> {scenario.roles.length} Roles
+          </span>
+          <span>•</span>
+          <span className="flex items-center gap-1">
+            <Radio size={13} /> {scenario.information_sources.length} Feeds
+          </span>
+        </div>
+
         <button
-          style={{
-            background: isSelected ? 'var(--accent-blue)' : 'var(--bg-tertiary)',
-            color: '#fff',
-            border: 'none',
-            padding: '6px 14px',
-            fontSize: '11px',
-            fontWeight: 600,
-            borderRadius: '4px'
-          }}
+          className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1 transition-all ${
+            isSelected
+              ? 'bg-[#14213D] text-white shadow-sm'
+              : 'bg-[#F4F5F7] text-[#14213D] hover:bg-[#E5E5E5]'
+          }`}
         >
-          {isSelected ? 'SELECTED' : 'SELECT SCENARIO'}
+          <span>{isSelected ? 'Selected' : 'Select'}</span>
+          <ChevronRight size={13} />
         </button>
       </div>
     </div>

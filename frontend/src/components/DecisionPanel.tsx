@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DecisionPoint, DecisionType, ConfidenceLevel, RoleEnum } from '../types';
+import { FileText, CheckCircle2, AlertTriangle, Send, Shield } from 'lucide-react';
 
 interface DecisionPanelProps {
   decisionPoint: DecisionPoint | null;
@@ -27,18 +28,14 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
 
   if (!decisionPoint) {
     return (
-      <div
-        style={{
-          background: 'var(--bg-panel)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: '6px',
-          padding: '16px',
-          textAlign: 'center',
-          color: 'var(--text-muted)',
-          fontSize: '12px'
-        }}
-      >
-        TACTICAL DISPATCH: No pending command decision required at this simulation tick. Maintain operational vigilance.
+      <div className="bg-white border border-[#E5E5E5] rounded-xl p-8 text-center text-xs text-[#6B7280] shadow-sm">
+        <div className="w-10 h-10 rounded-full bg-[#14213D]/5 text-[#14213D] flex items-center justify-center mx-auto mb-3">
+          <Shield size={18} />
+        </div>
+        <p className="font-medium text-[#14213D]">No Actionable Decision Dispatch Pending</p>
+        <p className="text-[11px] text-[#6B7280] mt-1">
+          Monitor your sensor feeds and coordinate with sub-unit members. Decision points trigger based on exercise timeline.
+        </p>
       </div>
     );
   }
@@ -70,178 +67,131 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
   };
 
   return (
-    <div
-      style={{
-        background: 'var(--bg-secondary)',
-        border: '1px solid var(--accent-cyan)',
-        borderRadius: '6px',
-        padding: '16px',
-        boxShadow: '0 0 12px rgba(6, 182, 212, 0.1)'
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-        <span
-          style={{
-            fontSize: '12px',
-            fontFamily: 'var(--font-mono)',
-            fontWeight: 700,
-            color: 'var(--accent-cyan)',
-            letterSpacing: '0.05em'
-          }}
-        >
-          COMMAND DECISION POINT: {decisionPoint.decision_point_id}
-        </span>
-        <span
-          style={{
-            fontSize: '11px',
-            background: isRoleAllowed ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-            color: isRoleAllowed ? 'var(--accent-green)' : 'var(--accent-red)',
-            padding: '2px 8px',
-            borderRadius: '3px',
-            fontWeight: 600
-          }}
-        >
-          {isRoleAllowed ? 'DISPATCH AUTHORIZED' : `RESTRICTED TO: ${decisionPoint.allowed_roles.join(', ')}`}
-        </span>
-      </div>
+    <div className="bg-white border-2 border-[#14213D] rounded-xl p-6 shadow-md">
+      <div className="flex justify-between items-center mb-4 pb-3 border-b border-[#E5E5E5]">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-md bg-[#14213D] text-[#FCA311] flex items-center justify-center">
+            <FileText size={15} />
+          </div>
+          <div>
+            <span className="font-mono text-xs font-bold text-[#14213D] uppercase">
+              Command Dispatch: {decisionPoint.decision_point_id}
+            </span>
+          </div>
+        </div>
 
-      <div style={{ fontSize: '13px', color: '#fff', marginBottom: '14px', lineHeight: '1.5' }}>
-        {decisionPoint.prompt}
+        <span
+          className={`px-2.5 py-0.5 rounded text-xs font-mono font-bold ${
+            isRoleAllowed
+              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+              : 'bg-red-50 text-red-700 border border-red-200'
+          }`}
+        >
+          {isRoleAllowed ? 'AUTHORIZED TO ACT' : 'AUTHORITY RESTRICTED'}
+        </span>
       </div>
 
       {submitted ? (
-        <div
-          style={{
-            background: 'rgba(16, 185, 129, 0.15)',
-            border: '1px solid var(--accent-green)',
-            color: 'var(--accent-green)',
-            padding: '12px',
-            borderRadius: '4px',
-            textAlign: 'center',
-            fontSize: '13px',
-            fontWeight: 600
-          }}
-        >
-          ✓ DECISION RECORDED IN IMMUTABLE LEDGER. Decision context and evidence snapshot frozen for AAR.
+        <div className="p-6 rounded-lg bg-emerald-50 border border-emerald-200 text-center">
+          <CheckCircle2 size={32} className="text-emerald-600 mx-auto mb-2" />
+          <h4 className="font-serif text-lg font-bold text-emerald-900 mb-1">
+            Decision Logged in Immutable Ledger
+          </h4>
+          <p className="text-xs text-emerald-700">
+            Hindsight-safe context snapshot captured. Evaluators will assess your process against available telemetry.
+          </p>
         </div>
       ) : (
-        <form onSubmit={handleSubmit}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Prompt */}
+          <div>
+            <h3 className="font-serif text-base font-bold text-[#14213D] leading-snug">
+              {decisionPoint.prompt}
+            </h3>
+          </div>
+
+          {error && (
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+              <AlertTriangle size={14} className="shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Options */}
+          <div className="space-y-2.5">
+            <label className="block text-xs font-semibold text-[#14213D] uppercase tracking-wider">
+              Select Tactical Action:
+            </label>
             {decisionPoint.options.map((opt) => (
               <label
                 key={opt.option_id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '10px',
-                  background: selectedOption === opt.option_id ? 'rgba(59, 130, 246, 0.15)' : 'var(--bg-tertiary)',
-                  border: `1px solid ${selectedOption === opt.option_id ? 'var(--accent-blue)' : 'var(--border-subtle)'}`,
-                  padding: '10px',
-                  borderRadius: '4px',
-                  cursor: isRoleAllowed ? 'pointer' : 'not-allowed',
-                  opacity: isRoleAllowed ? 1 : 0.6
-                }}
+                className={`flex items-start gap-3 p-3.5 rounded-lg border cursor-pointer transition-all ${
+                  selectedOption === opt.option_id
+                    ? 'border-[#FCA311] bg-[#FCA311]/10 ring-1 ring-[#FCA311]'
+                    : 'border-[#E5E5E5] bg-[#F9FAFB] hover:border-[#14213D]/40'
+                }`}
               >
                 <input
                   type="radio"
-                  name="decisionOption"
+                  name="decision_option"
                   value={opt.option_id}
-                  disabled={!isRoleAllowed}
                   checked={selectedOption === opt.option_id}
                   onChange={(e) => setSelectedOption(e.target.value)}
-                  style={{ marginTop: '3px' }}
+                  disabled={!isRoleAllowed}
+                  className="mt-1 accent-[#FCA311]"
                 />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>
-                    {opt.label}
-                    <span
-                      style={{
-                        marginLeft: '8px',
-                        fontSize: '10px',
-                        fontFamily: 'var(--font-mono)',
-                        padding: '1px 6px',
-                        borderRadius: '2px',
-                        background:
-                          opt.associated_risk === 'LOW'
-                            ? 'rgba(16, 185, 129, 0.2)'
-                            : opt.associated_risk === 'MEDIUM'
-                            ? 'rgba(245, 158, 11, 0.2)'
-                            : 'rgba(239, 68, 68, 0.2)',
-                        color:
-                          opt.associated_risk === 'LOW'
-                            ? 'var(--accent-green)'
-                            : opt.associated_risk === 'MEDIUM'
-                            ? 'var(--accent-amber)'
-                            : 'var(--accent-red)'
-                      }}
-                    >
-                      RISK: {opt.associated_risk}
-                    </span>
-                  </div>
-                  {opt.description && (
-                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                      {opt.description}
-                    </div>
-                  )}
+                <div className="flex-1">
+                  <div className="text-xs font-bold text-[#14213D]">{opt.label}</div>
+                  <div className="text-[11px] text-[#4B5563] mt-0.5">{opt.description}</div>
                 </div>
               </label>
             ))}
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px', marginBottom: '14px' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                TACTICAL RATIONALE (Explain reasoning given current degraded information)
+          {/* Rationale and Confidence */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold text-[#14213D] uppercase tracking-wider mb-1.5">
+                Commander's Tactical Rationale:
               </label>
               <textarea
-                rows={2}
-                disabled={!isRoleAllowed}
                 value={rationale}
                 onChange={(e) => setRationale(e.target.value)}
-                placeholder="State your assessment of contradictory/delayed feeds and basis for action..."
-                style={{ width: '100%', resize: 'none', fontSize: '12px' }}
+                placeholder="State why this action was chosen despite degraded telemetry or contradictions..."
+                rows={3}
+                disabled={!isRoleAllowed}
+                className="w-full text-xs p-2.5 rounded-lg border border-[#E5E5E5] text-[#14213D] placeholder-[#9CA3AF] focus:outline-none focus:border-[#14213D]"
               />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                CONFIDENCE ASSESSMENT
+              <label className="block text-xs font-semibold text-[#14213D] uppercase tracking-wider mb-1.5">
+                Subjective Confidence:
               </label>
               <select
                 value={confidence}
-                disabled={!isRoleAllowed}
                 onChange={(e) => setConfidence(e.target.value as ConfidenceLevel)}
-                style={{ width: '100%', height: '36px', fontSize: '12px' }}
+                disabled={!isRoleAllowed}
+                className="w-full text-xs p-2.5 rounded-lg border border-[#E5E5E5] bg-white text-[#14213D] focus:outline-none focus:border-[#14213D]"
               >
-                <option value="LOW">LOW CONFIDENCE (High uncertainty)</option>
-                <option value="MEDIUM">MEDIUM CONFIDENCE (Partial confirmation)</option>
-                <option value="HIGH">HIGH CONFIDENCE (Sufficient verification)</option>
+                <option value="VERY_HIGH">Very High (90%+)</option>
+                <option value="HIGH">High (75-90%)</option>
+                <option value="MEDIUM">Medium (50-75%)</option>
+                <option value="LOW">Low (25-50%)</option>
+                <option value="VERY_LOW">Very Low (&lt;25%)</option>
               </select>
             </div>
           </div>
 
-          {error && (
-            <div style={{ color: 'var(--accent-red)', fontSize: '11px', marginBottom: '10px' }}>
-              {error}
-            </div>
-          )}
-
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          {/* Submit */}
+          <div className="flex justify-end pt-2">
             <button
               type="submit"
               disabled={!isRoleAllowed || isSubmitting}
-              style={{
-                background: isRoleAllowed ? 'var(--accent-blue)' : 'var(--text-muted)',
-                color: '#fff',
-                padding: '8px 20px',
-                fontSize: '12px',
-                fontWeight: 600,
-                borderRadius: '4px',
-                border: 'none',
-                letterSpacing: '0.04em'
-              }}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#14213D] text-white text-xs font-semibold hover:bg-[#0B132B] disabled:opacity-50 transition-all shadow-sm"
             >
-              {isSubmitting ? 'RECORDING EVIDENCE...' : 'COMMIT COMMAND DISPATCH'}
+              <Send size={13} className="text-[#FCA311]" />
+              <span>{isSubmitting ? 'Recording Ledger...' : 'Commit Operational Decision'}</span>
             </button>
           </div>
         </form>

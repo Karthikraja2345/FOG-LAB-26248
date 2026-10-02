@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ScenarioPackage, SessionResponse } from '../types';
 import { fetchScenarios, createSession } from '../services/api';
 import { ScenarioCard } from '../components/ScenarioCard';
+import { Layers, ArrowRight, AlertCircle, RefreshCw } from 'lucide-react';
 
 interface ScenarioLibraryProps {
   onSessionCreated: (session: SessionResponse) => void;
@@ -19,7 +20,6 @@ export const ScenarioLibrary: React.FC<ScenarioLibraryProps> = ({ onSessionCreat
     fetchScenarios()
       .then((data) => {
         setScenarios(data);
-        // Default to Conflicting Picture (Primary Demo)
         const primary = data.find((s) => s.scenario_id === 'conflicting-picture') || data[0];
         setSelectedScenario(primary || null);
         setLoading(false);
@@ -46,85 +46,70 @@ export const ScenarioLibrary: React.FC<ScenarioLibraryProps> = ({ onSessionCreat
 
   if (loading) {
     return (
-      <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-        Loading validated scenario packages...
+      <div className="flex items-center justify-center min-h-[50vh] text-[#6B7280]">
+        <div className="flex items-center gap-2">
+          <RefreshCw size={18} className="animate-spin text-[#FCA311]" />
+          <span>Loading validated scenario packages...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+    <div className="w-full max-w-6xl mx-auto px-6 py-10">
+      {/* Header section */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8 pb-6 border-b border-[#E5E5E5]">
         <div>
-          <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#fff' }}>
-            SCENARIO DEFINITIONS & SIMULATION LIBRARY
+          <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#FCA311] uppercase tracking-wider mb-2">
+            <Layers size={14} />
+            DSSC Approved Curriculum
+          </div>
+          <h2 className="font-serif text-3xl font-bold text-[#14213D]">
+            Exercise Scenario Definitions
           </h2>
-          <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-            Select a verified data-driven training exercise package. All scenarios adhere to MoD DSSC non-operational training boundaries.
+          <p className="text-sm text-[#4B5563] mt-1">
+            Deterministic tactical environments conforming to Ministry of Defence training specifications.
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
-              SEED:
-            </label>
+        {/* Seed input and Launch button */}
+        <div className="flex items-center gap-4 bg-white p-2.5 rounded-lg border border-[#E5E5E5] shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-mono text-[#4B5563] px-2">
+            <span>SEED:</span>
             <input
               type="number"
               value={seed}
               onChange={(e) => setSeed(Number(e.target.value))}
-              style={{ width: '90px', fontSize: '12px', fontFamily: 'var(--font-mono)' }}
+              className="w-24 px-2 py-1 rounded border border-[#E5E5E5] font-mono text-xs text-[#14213D] focus:outline-none focus:border-[#14213D]"
             />
           </div>
 
           <button
             onClick={handleLaunch}
             disabled={!selectedScenario || creating}
-            style={{
-              background: 'var(--accent-blue)',
-              color: '#fff',
-              border: 'none',
-              padding: '8px 20px',
-              fontSize: '12px',
-              fontWeight: 700,
-              borderRadius: '4px',
-              letterSpacing: '0.04em'
-            }}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-[#14213D] text-white text-xs font-semibold hover:bg-[#0B132B] transition-all disabled:opacity-50 shadow-sm"
           >
-            {creating ? 'INITIALIZING SESSION...' : 'INITIALIZE EXERCISE SESSION →'}
+            <span>{creating ? 'Initializing...' : 'Launch Simulation Session'}</span>
+            <ArrowRight size={14} className="text-[#FCA311]" />
           </button>
         </div>
       </div>
 
       {error && (
-        <div
-          style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid var(--accent-red)',
-            color: 'var(--accent-red)',
-            padding: '12px',
-            borderRadius: '4px',
-            marginBottom: '16px',
-            fontSize: '12px'
-          }}
-        >
-          {error}
+        <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+          <AlertCircle size={16} className="shrink-0" />
+          <span>{error}</span>
         </div>
       )}
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-          gap: '16px'
-        }}
-      >
-        {scenarios.map((scen) => (
+      {/* Scenario Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {scenarios.map((sc) => (
           <ScenarioCard
-            key={scen.scenario_id}
-            scenario={scen}
-            isSelected={selectedScenario?.scenario_id === scen.scenario_id}
-            onSelect={(s) => setSelectedScenario(s)}
+            key={sc.scenario_id}
+            scenario={sc}
+            isSelected={selectedScenario?.scenario_id === sc.scenario_id}
+            onSelect={(scen) => setSelectedScenario(scen)}
           />
         ))}
       </div>

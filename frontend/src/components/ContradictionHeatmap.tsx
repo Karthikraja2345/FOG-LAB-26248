@@ -7,140 +7,64 @@ interface ContradictionHeatmapProps {
 
 export const ContradictionHeatmap: React.FC<ContradictionHeatmapProps> = ({ conflicts }) => {
   return (
-    <div
-      style={{
-        background: 'var(--bg-secondary)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: '6px',
-        overflow: 'hidden'
-      }}
-    >
-      <div
-        style={{
-          padding: '12px 16px',
-          background: 'var(--bg-panel)',
-          borderBottom: '1px solid var(--border-subtle)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}
-      >
-        <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--status-conflict)', letterSpacing: '0.05em' }}>
-          CONTRADICTION HEATMAP & DIVERGENCE AUDIT
-        </span>
-        <span
-          style={{
-            fontSize: '11px',
-            fontFamily: 'var(--font-mono)',
-            background: 'rgba(236, 72, 153, 0.15)',
-            color: 'var(--status-conflict)',
-            padding: '2px 8px',
-            borderRadius: '3px'
-          }}
-        >
-          {conflicts.filter((c) => !c.is_resolved).length} UNRESOLVED DIVERGENCES
-        </span>
-      </div>
-
-      <div style={{ padding: '12px' }}>
-        {conflicts.length === 0 ? (
-          <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px' }}>
-            No contradictory intelligence reports recorded. Sensor feeds are in mutual concordance.
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {conflicts.map((conf) => (
-              <div
-                key={conf.conflict_id}
-                style={{
-                  background: 'var(--bg-tertiary)',
-                  border: '1px solid rgba(236, 72, 153, 0.3)',
-                  borderLeft: '4px solid var(--status-conflict)',
-                  borderRadius: '4px',
-                  padding: '12px'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <span
-                      style={{
-                        fontSize: '11px',
-                        fontFamily: 'var(--font-mono)',
-                        fontWeight: 700,
-                        color: 'var(--status-conflict)'
-                      }}
-                    >
-                      {conf.conflict_id}
-                    </span>
-                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
-                      TOPIC: {conf.topic} • DETECTED AT T+{conf.detected_at_time}s
-                    </span>
-                  </div>
-
-                  <span
-                    style={{
-                      fontSize: '10px',
-                      fontFamily: 'var(--font-mono)',
-                      padding: '2px 6px',
-                      borderRadius: '2px',
-                      background: conf.is_resolved ? 'rgba(16, 185, 129, 0.2)' : 'rgba(236, 72, 153, 0.2)',
-                      color: conf.is_resolved ? 'var(--accent-green)' : 'var(--status-conflict)',
-                      fontWeight: 600
-                    }}
-                  >
-                    {conf.is_resolved ? 'RESOLVED' : 'ACTIVE CONFLICT'}
-                  </span>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <div
-                    style={{
-                      background: 'var(--bg-primary)',
-                      padding: '8px 10px',
-                      borderRadius: '4px',
-                      border: '1px solid var(--border-subtle)'
-                    }}
-                  >
-                    <div style={{ fontSize: '10px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-mono)', marginBottom: '4px' }}>
-                      SOURCE A: {conf.source_a}
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#fff' }}>"{conf.value_a}"</div>
-                  </div>
-
-                  <div
-                    style={{
-                      background: 'var(--bg-primary)',
-                      padding: '8px 10px',
-                      borderRadius: '4px',
-                      border: '1px solid var(--border-subtle)'
-                    }}
-                  >
-                    <div style={{ fontSize: '10px', color: 'var(--accent-amber)', fontFamily: 'var(--font-mono)', marginBottom: '4px' }}>
-                      SOURCE B: {conf.source_b}
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#fff' }}>"{conf.value_b}"</div>
-                  </div>
-                </div>
-
-                {conf.resolution_note && (
-                  <div
-                    style={{
-                      marginTop: '8px',
-                      fontSize: '11px',
-                      color: 'var(--accent-green)',
-                      background: 'rgba(16, 185, 129, 0.1)',
-                      padding: '6px 10px',
-                      borderRadius: '3px'
-                    }}
-                  >
-                    ✓ Resolution: {conf.resolution_note}
-                  </div>
-                )}
+    <div className="space-y-3">
+      {conflicts.length === 0 ? (
+        <div className="text-center py-6 text-xs text-[#6B7280]">
+          Zero conflicting intelligence reports recorded. Feeds are in mutual concordance.
+        </div>
+      ) : (
+        conflicts.map((conf) => (
+          <div
+            key={conf.conflict_id}
+            className="p-4 rounded-xl border border-purple-200 bg-purple-50/20 border-l-4 border-l-purple-600 space-y-3"
+          >
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded">
+                  {conf.conflict_id}
+                </span>
+                <span className="text-xs font-semibold text-[#14213D]">
+                  TOPIC: {conf.topic}
+                </span>
+                <span className="text-xs font-mono text-[#6B7280]">
+                  DETECTED: T+{conf.detected_at_time}s
+                </span>
               </div>
-            ))}
+
+              <span
+                className={`text-[11px] font-mono font-semibold px-2 py-0.5 rounded ${
+                  conf.is_resolved
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : 'bg-purple-100 text-purple-800'
+                }`}
+              >
+                {conf.is_resolved ? 'RESOLVED' : 'ACTIVE DIVERGENCE'}
+              </span>
+            </div>
+
+            {/* Comparison Columns */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="bg-white p-3 rounded-lg border border-purple-200">
+                <div className="text-[10px] font-semibold text-purple-700 uppercase font-mono mb-1">
+                  Source A ({conf.source_a})
+                </div>
+                <div className="text-[#14213D] font-medium leading-relaxed">
+                  {conf.value_a}
+                </div>
+              </div>
+
+              <div className="bg-white p-3 rounded-lg border border-purple-200">
+                <div className="text-[10px] font-semibold text-purple-700 uppercase font-mono mb-1">
+                  Source B ({conf.source_b})
+                </div>
+                <div className="text-[#14213D] font-medium leading-relaxed">
+                  {conf.value_b}
+                </div>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
+        ))
+      )}
     </div>
   );
 };

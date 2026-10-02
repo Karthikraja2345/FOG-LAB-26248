@@ -1,12 +1,12 @@
 import React from 'react';
 import { AsymmetryMatrixEntry, RoleEnum } from '../types';
+import { CheckCircle2, Clock, AlertTriangle, XCircle, AlertCircle } from 'lucide-react';
 
 interface InformationAsymmetryMatrixProps {
   matrix: AsymmetryMatrixEntry[];
 }
 
 export const InformationAsymmetryMatrix: React.FC<InformationAsymmetryMatrixProps> = ({ matrix }) => {
-  // Extract unique sources and roles
   const sources = Array.from(new Set(matrix.map((m) => m.source_id))).map((id) => {
     const entry = matrix.find((m) => m.source_id === id);
     return { id, name: entry ? entry.source_name : id };
@@ -14,167 +14,88 @@ export const InformationAsymmetryMatrix: React.FC<InformationAsymmetryMatrixProp
 
   const roles: RoleEnum[] = ['TEAM_LEAD', 'COORDINATION', 'INFORMATION'];
 
-  const getStatusIcon = (status: string, entry?: AsymmetryMatrixEntry) => {
-    if (!entry) return <span style={{ color: 'var(--text-muted)' }}>-</span>;
+  const getStatusBadge = (status: string, entry?: AsymmetryMatrixEntry) => {
+    if (!entry) return <span className="text-[#9CA3AF]">-</span>;
 
     if (entry.is_conflicted || status === 'CONFLICT') {
       return (
-        <span
-          style={{
-            background: 'rgba(236, 72, 153, 0.2)',
-            color: 'var(--status-conflict)',
-            padding: '2px 6px',
-            borderRadius: '3px',
-            fontSize: '11px',
-            fontWeight: 700
-          }}
-        >
-          CONFLICT
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-purple-50 text-purple-700 border border-purple-200">
+          <AlertTriangle size={11} />
+          <span>CONFLICT</span>
         </span>
       );
     }
     if (status === 'DROPPED') {
       return (
-        <span
-          style={{
-            background: 'rgba(239, 68, 68, 0.2)',
-            color: 'var(--status-dropped)',
-            padding: '2px 6px',
-            borderRadius: '3px',
-            fontSize: '11px',
-            fontWeight: 700
-          }}
-        >
-          DROPPED (OFFLINE)
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-red-50 text-red-700 border border-red-200">
+          <XCircle size={11} />
+          <span>DROPPED</span>
         </span>
       );
     }
     if (status === 'DELAYED') {
       return (
-        <span
-          style={{
-            background: 'rgba(245, 158, 11, 0.2)',
-            color: 'var(--status-delayed)',
-            padding: '2px 6px',
-            borderRadius: '3px',
-            fontSize: '11px',
-            fontWeight: 700
-          }}
-        >
-          DELAYED (+{Math.round(entry.latency_added_seconds)}s)
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+          <Clock size={11} />
+          <span>+{Math.round(entry.latency_added_seconds)}s DELAY</span>
         </span>
       );
     }
     if (status === 'STALE') {
       return (
-        <span
-          style={{
-            background: 'rgba(168, 85, 247, 0.2)',
-            color: 'var(--status-stale)',
-            padding: '2px 6px',
-            borderRadius: '3px',
-            fontSize: '11px',
-            fontWeight: 700
-          }}
-        >
-          STALE
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-orange-50 text-orange-700 border border-orange-200">
+          <AlertCircle size={11} />
+          <span>STALE</span>
         </span>
       );
     }
     return (
-      <span
-        style={{
-          background: 'rgba(16, 185, 129, 0.2)',
-          color: 'var(--status-normal)',
-          padding: '2px 6px',
-          borderRadius: '3px',
-          fontSize: '11px',
-          fontWeight: 700
-        }}
-      >
-        ✓ DELIVERED
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+        <CheckCircle2 size={11} />
+        <span>DELIVERED</span>
       </span>
     );
   };
 
-  return (
-    <div
-      style={{
-        background: 'var(--bg-secondary)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: '6px',
-        overflow: 'hidden'
-      }}
-    >
-      <div
-        style={{
-          padding: '12px 16px',
-          background: 'var(--bg-panel)',
-          borderBottom: '1px solid var(--border-subtle)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}
-      >
-        <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff', letterSpacing: '0.05em' }}>
-          INFORMATION ASYMMETRY MATRIX
-        </span>
-        <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
-          PER-ROLE VISIBILITY & DELAY AUDIT
-        </span>
+  if (matrix.length === 0) {
+    return (
+      <div className="text-center py-6 text-xs text-[#6B7280]">
+        No active matrix records captured yet.
       </div>
+    );
+  }
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-          <thead>
-            <tr style={{ background: 'var(--bg-tertiary)', borderBottom: '1px solid var(--border-subtle)' }}>
-              <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                INTELLIGENCE SOURCE
-              </th>
-              {roles.map((r) => (
-                <th
-                  key={r}
-                  style={{
-                    padding: '10px 14px',
-                    textAlign: 'center',
-                    color: 'var(--accent-cyan)',
-                    fontWeight: 600,
-                    fontFamily: 'var(--font-mono)'
-                  }}
-                >
-                  {r.replace('_', ' ')}
-                </th>
-              ))}
+  return (
+    <div className="overflow-x-auto rounded-lg border border-[#E5E5E5]">
+      <table className="w-full text-left text-xs">
+        <thead className="bg-[#14213D] text-white uppercase text-[11px] font-mono tracking-wider">
+          <tr>
+            <th className="py-3 px-4 font-semibold">Intelligence Source</th>
+            <th className="py-3 px-4 font-semibold text-center">Team Lead</th>
+            <th className="py-3 px-4 font-semibold text-center">Coordination</th>
+            <th className="py-3 px-4 font-semibold text-center">Information</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-[#E5E5E5] bg-white">
+          {sources.map((src) => (
+            <tr key={src.id} className="hover:bg-[#F9FAFB] transition-colors">
+              <td className="py-3 px-4 font-semibold text-[#14213D]">
+                <div>{src.name}</div>
+                <div className="text-[10px] text-[#6B7280] font-mono">{src.id}</div>
+              </td>
+
+              {roles.map((r) => {
+                const entry = matrix.find((m) => m.source_id === src.id && m.role === r);
+                return (
+                  <td key={r} className="py-3 px-4 text-center">
+                    {getStatusBadge(entry?.delivery_status || 'DROPPED', entry)}
+                  </td>
+                );
+              })}
             </tr>
-          </thead>
-          <tbody>
-            {sources.map((src) => (
-              <tr
-                key={src.id}
-                style={{
-                  borderBottom: '1px solid var(--border-subtle)',
-                  background: 'transparent'
-                }}
-              >
-                <td style={{ padding: '12px 14px' }}>
-                  <div style={{ fontWeight: 600, color: '#fff' }}>{src.name}</div>
-                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                    {src.id}
-                  </div>
-                </td>
-                {roles.map((r) => {
-                  const entry = matrix.find((m) => m.source_id === src.id && m.role === r);
-                  return (
-                    <td key={r} style={{ padding: '12px 14px', textAlign: 'center' }}>
-                      {getStatusIcon(entry ? entry.delivery_status : 'UNKNOWN', entry)}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
