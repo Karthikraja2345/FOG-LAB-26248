@@ -222,7 +222,7 @@ class ScenarioSimulationEngine:
                 break
 
         card = DecisionContextCardSchema(
-            decision_id=f"DEC-{len(self.decisions_ledger) + 1:04d}",
+            decision_id=f"DEC-{len(self.decisions_ledger) + 1:04d}-{str(uuid.uuid4())[:6]}",
             session_id="LOCAL",
             trainee_id=req.trainee_id,
             role=req.role,

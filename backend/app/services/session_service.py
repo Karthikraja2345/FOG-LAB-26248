@@ -397,7 +397,7 @@ class SessionService:
             raise ValueError(f"Active session {session_id} not found.")
 
         msg = MessageRecordSchema(
-            message_id=f"MSG-{len(instance.messages) + 1:04d}",
+            message_id=f"MSG-{session_id[-6:]}-{len(instance.messages) + 1:04d}-{str(uuid.uuid4())[:4]}",
             session_id=session_id,
             sender_id=request.sender_id,
             sender_role=request.sender_role,

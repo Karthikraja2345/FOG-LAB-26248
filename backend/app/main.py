@@ -11,6 +11,8 @@ from backend.app.api.instructor import router as instructor_router
 from backend.app.api.decisions import router as decisions_router
 from backend.app.api.messages import router as messages_router
 from backend.app.api.timeline import router as timeline_router
+from backend.app.api.aar import router as aar_router
+from backend.app.api.replay import router as replay_router
 from backend.app.services.session_service import session_service
 from backend.app.realtime.manager import ws_manager
 from backend.app.schemas.enums import RoleEnum
@@ -55,6 +57,8 @@ app.include_router(instructor_router, prefix="/api")
 app.include_router(decisions_router, prefix="/api")
 app.include_router(messages_router, prefix="/api")
 app.include_router(timeline_router, prefix="/api")
+app.include_router(aar_router, prefix="/api")
+app.include_router(replay_router, prefix="/api")
 
 # Top-level WebSocket route: /ws/sessions/{session_id}
 @app.websocket("/ws/sessions/{session_id}")
