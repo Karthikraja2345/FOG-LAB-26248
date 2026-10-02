@@ -280,3 +280,30 @@ export interface AARSummary {
   ground_truth_resolution: string;
   disclaimer: string;
 }
+
+export interface SessionResponse {
+  session_id: string;
+  session_code: string;
+  scenario_id: string;
+  scenario_title: string;
+  status: ScenarioState;
+  seed: number;
+  scenario_time: number;
+  duration_seconds: number;
+  participants: Participant[];
+  active_degradations_count: number;
+  created_at: string;
+}
+
+export interface CounterfactualComparison {
+  base_session_id: string;
+  counterfactual_session_id: string;
+  seed: number;
+  modified_variable: string;
+  base_decision_latencies: Record<string, number>;
+  counterfactual_decision_latencies: Record<string, number>;
+  base_outcomes: string[];
+  counterfactual_outcomes: string[];
+  variance_narrative: string;
+}
+

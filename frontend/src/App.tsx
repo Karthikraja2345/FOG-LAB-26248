@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import { SessionResponse } from './types';
+import { createSession } from './services/api';
+import { Landing } from './pages/Landing';
+import { ScenarioLibrary } from './pages/ScenarioLibrary';
+import { InstructorDashboard } from './pages/InstructorDashboard';
+import { TraineeWorkspace } from './pages/TraineeWorkspace';
+import { AARDashboard } from './pages/AARDashboard';
+import { DecisionReview } from './pages/DecisionReview';
+import { Replay } from './pages/Replay';
+import { Counterfactual } from './pages/Counterfactual';
 
 interface HealthData {
   status: string;
@@ -13,6 +23,7 @@ interface HealthData {
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('landing');
+  const [currentSession, setCurrentSession] = useState<SessionResponse | null>(null);
   const [health, setHealth] = useState<HealthData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,14 +44,45 @@ export const App: React.FC = () => {
       });
   }, []);
 
+  // Ensure default demo session exists on mount
+  useEffect(() => {
+    if (!currentSession) {
+      createSession('conflicting-picture', 424242)
+        .then((sess) => setCurrentSession(sess))
+        .catch((err) => console.warn('Could not auto-create demo session:', err));
+    }
+  }, [currentSession]);
+
+  const handleSessionLaunched = (session: SessionResponse, targetView: string) => {
+    setCurrentSession(session);
+    setActiveTab(targetView);
+  };
+
   return (
     <div className="app-layout">
+      {/* Top Command Navbar */}
       <header className="top-navbar">
         <div className="brand-section">
-          <span className="brand-title">
+          <span
+            className="brand-title"
+            style={{ cursor: 'pointer' }}
+            onClick={() => setActiveTab('landing')}
+          >
             <span role="img" aria-label="shield">🛡️</span> FOG-LAB 26248
           </span>
           <span className="brand-tag">PS-26248 / MoD DSSC</span>
+          {currentSession && (
+            <span
+              style={{
+                fontSize: '11px',
+                color: 'var(--text-secondary)',
+                fontFamily: 'var(--font-mono)',
+                marginLeft: '8px'
+              }}
+            >
+              EXERCISE: <strong>{currentSession.session_code}</strong>
+            </span>
+          )}
         </div>
 
         <nav className="nav-links">
@@ -69,16 +111,28 @@ export const App: React.FC = () => {
             Trainee Workspace
           </button>
           <button
+            className={`nav-btn ${activeTab === 'decisions' ? 'active' : ''}`}
+            onClick={() => setActiveTab('decisions')}
+          >
+            Decision Ledger
+          </button>
+          <button
             className={`nav-btn ${activeTab === 'aar' ? 'active' : ''}`}
             onClick={() => setActiveTab('aar')}
           >
-            AAR & Ledger
+            AAR Dashboard
           </button>
           <button
             className={`nav-btn ${activeTab === 'replay' ? 'active' : ''}`}
             onClick={() => setActiveTab('replay')}
           >
-            Replay & Counterfactual
+            Replay
+          </button>
+          <button
+            className={`nav-btn ${activeTab === 'counterfactual' ? 'active' : ''}`}
+            onClick={() => setActiveTab('counterfactual')}
+          >
+            Counterfactual
           </button>
         </nav>
 
@@ -98,88 +152,50 @@ export const App: React.FC = () => {
         </div>
       </header>
 
+      {/* Main Dynamic View */}
       <main className="main-content">
-        <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
-          <div
-            style={{
-              background: 'var(--bg-panel)',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '6px',
-              padding: '24px',
-              marginBottom: '20px'
+        {activeTab === 'landing' && (
+          <Landing
+            onSessionLaunched={handleSessionLaunched}
+            currentSession={currentSession}
+          />
+        )}
+
+        {activeTab === 'scenarios' && (
+          <ScenarioLibrary
+            onSessionCreated={(sess) => {
+              setCurrentSession(sess);
+              setActiveTab('instructor');
             }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <h1 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>
-                  Immersive Multi-Domain Decision-Making Trainer for Degraded Communication Environments
-                </h1>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '13px', lineHeight: '1.6' }}>
-                  <strong>Ministry of Defence (MoD) • Defence Services Staff College</strong> | Smart India Hackathon 2026
-                </p>
-                <p style={{ color: 'var(--accent-cyan)', fontSize: '12px', marginTop: '6px', fontFamily: 'var(--font-mono)' }}>
-                  Core Positioning: "Evidence-backed decision training under degraded information — separate ground truth from trainee observation, inject uncertainty live, coordinate as a team, and automatically reconstruct the decision story."
-                </p>
-              </div>
-            </div>
-          </div>
+          />
+        )}
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '16px'
-            }}
-          >
-            <div
-              style={{
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '6px',
-                padding: '16px'
-              }}
-            >
-              <h3 style={{ fontSize: '14px', color: 'var(--accent-cyan)', marginBottom: '8px' }}>
-                1. Separation of Realities
-              </h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
-                Ground truth is strictly decoupled from trainee perception. Delivery transformations (delay, dropout, contradiction, staleness) simulate real-world electronic & cyber disruption.
-              </p>
-            </div>
+        {activeTab === 'instructor' && currentSession && (
+          <InstructorDashboard
+            session={currentSession}
+            onNavigateAAR={() => setActiveTab('aar')}
+          />
+        )}
 
-            <div
-              style={{
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '6px',
-                padding: '16px'
-              }}
-            >
-              <h3 style={{ fontSize: '14px', color: 'var(--accent-green)', marginBottom: '8px' }}>
-                2. Communication Fog Composer
-              </h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
-                Instructor controls live injects targeting specific feeds and roles. Live preview of affected trainees with deterministic jitter and recovery sequencing.
-              </p>
-            </div>
+        {activeTab === 'trainee' && currentSession && (
+          <TraineeWorkspace session={currentSession} />
+        )}
 
-            <div
-              style={{
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '6px',
-                padding: '16px'
-              }}
-            >
-              <h3 style={{ fontSize: '14px', color: 'var(--accent-amber)', marginBottom: '8px' }}>
-                3. Hindsight-Safe AAR
-              </h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
-                Evaluates decisions against what the commander knew at the moment of decision, rather than unfair post-hoc outcomes. Full Decision Context Cards & Asymmetry Matrix.
-              </p>
-            </div>
-          </div>
-        </div>
+        {activeTab === 'decisions' && currentSession && (
+          <DecisionReview session={currentSession} />
+        )}
+
+        {activeTab === 'aar' && currentSession && (
+          <AARDashboard session={currentSession} />
+        )}
+
+        {activeTab === 'replay' && currentSession && (
+          <Replay session={currentSession} />
+        )}
+
+        {activeTab === 'counterfactual' && currentSession && (
+          <Counterfactual session={currentSession} />
+        )}
       </main>
     </div>
   );
