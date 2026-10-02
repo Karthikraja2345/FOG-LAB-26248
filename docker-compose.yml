@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: foglab-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME=FOG-LAB 26248
+      - APP_ENV=production
+      - DATABASE_URL=sqlite:///./data/demo/foglab.db
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+    volumes:
+      - ./data/demo:/app/data/demo
+      - ./scenarios:/app/scenarios
+      - ./reports/generated:/app/reports/generated
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: foglab-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
