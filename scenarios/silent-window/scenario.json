@@ -1,0 +1,173 @@
+{
+  "scenario_id": "silent-window",
+  "version": "1.0.0",
+  "title": "Scenario A: Silent Window & Comm-Loss Protocol",
+  "description": "Sub-unit operating in mountainous terrain experiences sudden electronic spectrum occlusion, resulting in feed dropout and latency spikes during a planned logistics corridor escort.",
+  "learning_objectives": [
+    "Execute sub-unit contingency protocol during total sensor silence",
+    "Identify stale telemetry without panicking into uncoordinated maneuvers",
+    "Re-establish cross-role synchronization upon delayed channel recovery"
+  ],
+  "seed": 101010,
+  "duration_seconds": 300,
+  "roles": [
+    {
+      "role_id": "TEAM_LEAD",
+      "title": "Convoy Sub-Unit Commander",
+      "clearance_level": "CMD_ALPHA",
+      "description": "Authorized to hold, advance, or redirect convoy route."
+    },
+    {
+      "role_id": "COORDINATION",
+      "title": "Route Clearance & Operations Lead",
+      "clearance_level": "OPS_BRAVO",
+      "description": "Monitors waypoint checkpoints and vehicle interval spacing."
+    },
+    {
+      "role_id": "INFORMATION",
+      "title": "Signals & Spectrum Monitoring Specialist",
+      "clearance_level": "SIG_CHARLIE",
+      "description": "Analyzes RF signal-to-noise ratio and satellite uplink integrity."
+    }
+  ],
+  "information_sources": [
+    {
+      "source_id": "SOURCE_A_DRONE",
+      "name": "Falcon-4 Forward Overhead UAV",
+      "type": "OPTICAL_FEED",
+      "baseline_reliability": 0.90,
+      "latency_profile": { "base_ms": 300, "jitter_ms": 50 },
+      "confidence_class": "HIGH",
+      "default_assigned_roles": ["TEAM_LEAD", "COORDINATION"]
+    },
+    {
+      "source_id": "SOURCE_B_SATCOM",
+      "name": "GSAT Tactical Uplink Channel 3",
+      "type": "RADAR_TELEMETRY",
+      "baseline_reliability": 0.95,
+      "latency_profile": { "base_ms": 150, "jitter_ms": 30 },
+      "confidence_class": "VERY_HIGH",
+      "default_assigned_roles": ["TEAM_LEAD", "COORDINATION", "INFORMATION"]
+    },
+    {
+      "source_id": "SOURCE_C_SIGINT",
+      "name": "Spectrum Monitor Array Kilo",
+      "type": "SIGINT_SENSOR",
+      "baseline_reliability": 0.80,
+      "latency_profile": { "base_ms": 800, "jitter_ms": 200 },
+      "confidence_class": "MEDIUM",
+      "default_assigned_roles": ["INFORMATION"]
+    }
+  ],
+  "world_state": {
+    "convoy_status": "TRANSIT_ROUTE_NORTH",
+    "mountain_pass_clearance": "BLOCKED_BY_AVALANCHE_DEBRIS",
+    "hostile_presence_actual": "NONE",
+    "electronic_interference_level": "LOCALIZED_ATMOSPHERIC_PULSE"
+  },
+  "scheduled_events": [
+    {
+      "time_seconds": 15,
+      "event_type": "INFORMATION_GENERATED",
+      "source_id": "SOURCE_A_DRONE",
+      "payload": {
+        "status": "CLEAR",
+        "route_visibility": "100%",
+        "message": "Overhead visual confirms Sector 2 pass accessible."
+      }
+    },
+    {
+      "time_seconds": 45,
+      "event_type": "WORLD_EVENT",
+      "payload": {
+        "event": "ATMOSPHERIC_INVERSION_COMM_LOSS",
+        "affected_bands": ["UHF", "SATCOM_KU"]
+      }
+    },
+    {
+      "time_seconds": 160,
+      "event_type": "INFORMATION_GENERATED",
+      "source_id": "SOURCE_B_SATCOM",
+      "payload": {
+        "status": "RECOVERED_BURST",
+        "obstacle_detected": "ROCKFALL_AT_KILOMETER_14",
+        "recommended_detour": "PASS_ECHO_EAST"
+      }
+    }
+  ],
+  "degradation_rules": [
+    {
+      "rule_id": "INJECT_DROPOUT_SATCOM",
+      "trigger_time_seconds": 45,
+      "duration_seconds": 90,
+      "degradation_type": "DROPOUT",
+      "source_id": "SOURCE_B_SATCOM",
+      "target_roles": ["TEAM_LEAD", "COORDINATION", "INFORMATION"],
+      "intensity": 1.0,
+      "parameters": { "reason": "Severe RF shadowing in defile" }
+    },
+    {
+      "rule_id": "INJECT_DELAY_DRONE",
+      "trigger_time_seconds": 60,
+      "duration_seconds": 100,
+      "degradation_type": "DELAY",
+      "source_id": "SOURCE_A_DRONE",
+      "target_roles": ["TEAM_LEAD", "COORDINATION"],
+      "intensity": 0.8,
+      "parameters": { "delay_seconds": 55 }
+    }
+  ],
+  "decision_points": [
+    {
+      "decision_point_id": "DP_CONVOY_DEFLE_ACTION",
+      "trigger_time_seconds": 110,
+      "decision_type": "ACTION_DISPATCH",
+      "prompt": "SATCOM telemetry is down and UAV feed is showing 55s latency. Convoy approaches fork at Kilometer 12. Proceed blindly into defile, halt convoy into defensive box, or take unverified eastern ridge trail?",
+      "allowed_roles": ["TEAM_LEAD"],
+      "options": [
+        {
+          "option_id": "OPT_HALT_DEFENSIVE_BOX",
+          "label": "Halt Convoy into Defensive Box",
+          "description": "Establish perimeter defense, initiate local VHF relay search, and await channel restoration.",
+          "associated_risk": "LOW"
+        },
+        {
+          "option_id": "OPT_PUSH_PRIMARY_ROUTE",
+          "label": "Continue Primary Route on Dead Reckoning",
+          "description": "Maintain tactical speed despite zero live telemetry to meet schedule window.",
+          "associated_risk": "HIGH"
+        },
+        {
+          "option_id": "OPT_DIVERT_EAST_TRAIL",
+          "label": "Divert Entire Unit to Unreconnoitered Ridge Trail",
+          "description": "Avoid defile completely without ground confirmation of vehicle weight capacity.",
+          "associated_risk": "EXTREME"
+        }
+      ],
+      "timeout_seconds": 60
+    }
+  ],
+  "outcome_rules": [
+    {
+      "rule_id": "OUTCOME_HALT",
+      "condition_decision": "DP_CONVOY_DEFLE_ACTION",
+      "condition_option": "OPT_HALT_DEFENSIVE_BOX",
+      "outcome_state": "SUCCESSFUL_DEFENSIVE_PRESERVATION",
+      "narrative": "Sub-unit halted safely outside the rockfall choke point. When SATCOM restored at T=160, obstacle was identified and safely bypassed with zero vehicle damage.",
+      "ground_truth_fact": "Kilometer 14 was impassable due to rockfall; pushing through would have trapped the convoy in a kill-zone choke point."
+    },
+    {
+      "rule_id": "OUTCOME_PUSH",
+      "condition_decision": "DP_CONVOY_DEFLE_ACTION",
+      "condition_option": "OPT_PUSH_PRIMARY_ROUTE",
+      "outcome_state": "CONVOY_TRAPPED_IN_OBSTACLE",
+      "narrative": "Lead vehicles collided with rockfall at Kilometer 14 due to stale UAV feed. Sub-unit became immobilized for 4 hours.",
+      "ground_truth_fact": "Rockfall occurred at T=35; stale feed concealed the blockage."
+    }
+  ],
+  "evaluation_rules": {
+    "optimal_decision": "OPT_HALT_DEFENSIVE_BOX",
+    "latency_penalty_threshold_seconds": 45,
+    "requires_coordination_message": true
+  }
+}

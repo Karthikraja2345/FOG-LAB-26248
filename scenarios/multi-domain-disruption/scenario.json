@@ -1,0 +1,164 @@
+{
+  "scenario_id": "multi-domain-disruption",
+  "version": "1.0.0",
+  "title": "Scenario C: Multi-Domain Disruption (Land/Air/Cyber/EW)",
+  "description": "Multi-domain training scenario simulating simultaneous cyber telemetry degradation, electronic warfare broad-spectrum jamming, and land-air coordination across synthetic tactical zones.",
+  "learning_objectives": [
+    "Differentiate between cyber link degradation and physical sensor failure",
+    "Maintain cross-domain coordination between land maneuver and air surveillance",
+    "Execute fallback protocol when primary automated data links are compromised"
+  ],
+  "seed": 987654,
+  "duration_seconds": 360,
+  "roles": [
+    {
+      "role_id": "TEAM_LEAD",
+      "title": "Joint Task Unit Commander",
+      "clearance_level": "JOINT_COMMAND",
+      "description": "Orchestrates multi-domain fire and movement decisions."
+    },
+    {
+      "role_id": "COORDINATION",
+      "title": "Air-Land Integration Officer",
+      "clearance_level": "AIR_LAND_TAC",
+      "description": "Coordinates airspace deconfliction and ground maneuver corridors."
+    },
+    {
+      "role_id": "INFORMATION",
+      "title": "Cyber-EW Spectrum Controller",
+      "clearance_level": "CYBER_EW_SPEC",
+      "description": "Manages encryption keys, telemetry integrity checks, and counter-EW frequency hopping."
+    }
+  ],
+  "information_sources": [
+    {
+      "source_id": "SOURCE_AIR_RADAR",
+      "name": "Sky-Shield Airborne Early Warning Feed",
+      "type": "RADAR_TELEMETRY",
+      "baseline_reliability": 0.94,
+      "latency_profile": { "base_ms": 180, "jitter_ms": 30 },
+      "confidence_class": "HIGH",
+      "default_assigned_roles": ["TEAM_LEAD", "COORDINATION"]
+    },
+    {
+      "source_id": "SOURCE_LAND_TELEM",
+      "name": "Ground Blue-Force Position Tracker Link",
+      "type": "CYBER_STATUS",
+      "baseline_reliability": 0.92,
+      "latency_profile": { "base_ms": 100, "jitter_ms": 20 },
+      "confidence_class": "HIGH",
+      "default_assigned_roles": ["TEAM_LEAD", "COORDINATION", "INFORMATION"]
+    },
+    {
+      "source_id": "SOURCE_EW_SENSOR",
+      "name": "Spectrum Defense ESM Receiver",
+      "type": "EW_INTERCEPT",
+      "baseline_reliability": 0.88,
+      "latency_profile": { "base_ms": 350, "jitter_ms": 70 },
+      "confidence_class": "MEDIUM_HIGH",
+      "default_assigned_roles": ["INFORMATION"]
+    }
+  ],
+  "world_state": {
+    "air_corridor_status": "RESTRICTED",
+    "cyber_gateway_integrity": "COMPROMISED_BY_PACKET_STALLING",
+    "jamming_barrage_frequency": "BAND_FOXTROT_ACTIVE",
+    "ground_forces_actual_position": "ZONE_DELTA_HOLDING"
+  },
+  "scheduled_events": [
+    {
+      "time_seconds": 25,
+      "event_type": "INFORMATION_GENERATED",
+      "source_id": "SOURCE_AIR_RADAR",
+      "payload": {
+        "status": "TRACK_DETECTED",
+        "altitude_m": 4200,
+        "heading_deg": 135,
+        "classification": "UNIDENTIFIED_AIR_TRACK_9"
+      }
+    },
+    {
+      "time_seconds": 55,
+      "event_type": "WORLD_EVENT",
+      "payload": {
+        "event": "CYBER_BURST_INJECTION",
+        "vector": "TELEMETRY_TIMESTAMP_SKEW"
+      }
+    }
+  ],
+  "degradation_rules": [
+    {
+      "rule_id": "DEGRADE_CYBER_STALENESS",
+      "trigger_time_seconds": 50,
+      "duration_seconds": 120,
+      "degradation_type": "STALENESS",
+      "source_id": "SOURCE_LAND_TELEM",
+      "target_roles": ["TEAM_LEAD", "COORDINATION"],
+      "intensity": 0.9,
+      "parameters": { "stale_freeze_seconds": 75 }
+    },
+    {
+      "rule_id": "DEGRADE_EW_PARTIAL_PAYLOAD",
+      "trigger_time_seconds": 70,
+      "duration_seconds": 90,
+      "degradation_type": "PARTIAL_PAYLOAD",
+      "source_id": "SOURCE_EW_SENSOR",
+      "target_roles": ["INFORMATION"],
+      "intensity": 0.7,
+      "parameters": { "masked_fields": ["azimuth_bearing", "emitter_sub_code"] }
+    }
+  ],
+  "decision_points": [
+    {
+      "decision_point_id": "DP_MULTI_DOMAIN_DECONFLICT",
+      "trigger_time_seconds": 130,
+      "decision_type": "ESCALATE_COMMAND",
+      "prompt": "Land telemetry positions have frozen (staleness 75s) while ESM sensor packets show partial payload corruption. Airborne track approaches Zone Delta. Commander must choose deconfliction protocol:",
+      "allowed_roles": ["TEAM_LEAD"],
+      "options": [
+        {
+          "option_id": "OPT_SWITCH_BACKUP_RADIO_GRID",
+          "label": "Shift to Hardened HF Manual Grid Broadcast",
+          "description": "Isolate compromised digital network, initiate voice authentication challenge on analog HF net.",
+          "associated_risk": "LOW"
+        },
+        {
+          "option_id": "OPT_REBOOT_CENTRAL_TELEMETRY",
+          "label": "Attempt Hard Reset of Cyber Telemetry Gateway",
+          "description": "Reboot router links causing 120s total blackout during contact approach.",
+          "associated_risk": "HIGH"
+        },
+        {
+          "option_id": "OPT_ORDER_BLIND_AIR_INTERCEPT",
+          "label": "Order Tactical Aircraft to Engage Radar Track Directly",
+          "description": "Authorize engagement without positive ground blue-force position deconfliction.",
+          "associated_risk": "CRITICAL"
+        }
+      ],
+      "timeout_seconds": 90
+    }
+  ],
+  "outcome_rules": [
+    {
+      "rule_id": "OUTCOME_SWITCH_HF",
+      "condition_decision": "DP_MULTI_DOMAIN_DECONFLICT",
+      "condition_option": "OPT_SWITCH_BACKUP_RADIO_GRID",
+      "outcome_state": "DECONFLICTION_SUCCESSFUL",
+      "narrative": "Voice authentication verified ground unit coordinates at Zone Delta. Air corridor safely redirected outside friendly airspace.",
+      "ground_truth_fact": "Friendly ground patrol was 2km closer than stale digital tracker displayed; manual HF net prevented friendly-fire disaster."
+    },
+    {
+      "rule_id": "OUTCOME_BLIND_ENGAGE",
+      "condition_decision": "DP_MULTI_DOMAIN_DECONFLICT",
+      "condition_option": "OPT_ORDER_BLIND_AIR_INTERCEPT",
+      "outcome_state": "NEAR_MISS_BLUE_FORCE_INCIDENT",
+      "narrative": "Fighter jet fired into Zone Delta where friendly units were holding. Mission evaluation failed safety criteria.",
+      "ground_truth_fact": "Stale blue-force tracking led commander to assume Zone Delta was empty."
+    }
+  ],
+  "evaluation_rules": {
+    "optimal_decision": "OPT_SWITCH_BACKUP_RADIO_GRID",
+    "failure_decision": "OPT_ORDER_BLIND_AIR_INTERCEPT",
+    "requires_cyber_isolation": true
+  }
+}

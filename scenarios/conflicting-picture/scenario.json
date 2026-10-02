@@ -1,0 +1,195 @@
+{
+  "scenario_id": "conflicting-picture",
+  "version": "1.0.0",
+  "title": "Scenario B: Conflicting Picture in Grid Sector 7 (Primary Demo)",
+  "description": "Multi-source reconnaissance reports contradictory movement signatures during an active forward reconnaissance patrol. Source A reports mechanized advance, Source B reports intermittent decoy radar doppler, and Source C HUMINT reports false acoustic emitters.",
+  "learning_objectives": [
+    "Identify and cross-reference divergent intelligence feeds under temporal delay",
+    "Synthesize conflicting sensor metadata and source reliability profiles",
+    "Resolve information asymmetry between Team Lead and Specialist roles before committing assets"
+  ],
+  "seed": 424242,
+  "duration_seconds": 360,
+  "roles": [
+    {
+      "role_id": "TEAM_LEAD",
+      "title": "Task Force Lead Commander",
+      "clearance_level": "CMD_AUTHORITY",
+      "description": "Has final dispatch and operational engagement authority for Sector 7."
+    },
+    {
+      "role_id": "COORDINATION",
+      "title": "Tactical Operations & Fire Support Officer",
+      "clearance_level": "OPS_COORDINATION",
+      "description": "Liaises between intelligence sensors, artillery coordinates, and maneuver units."
+    },
+    {
+      "role_id": "INFORMATION",
+      "title": "Electronic Warfare & Signals Intelligence Specialist",
+      "clearance_level": "SIG_INTELLIGENCE",
+      "description": "Interprets sensor spectral signatures, radar Doppler metrics, and decoy spoofing."
+    }
+  ],
+  "information_sources": [
+    {
+      "source_id": "SOURCE_A_UAV",
+      "name": "Eagle-1 Tactical Optical UAV",
+      "type": "OPTICAL_FEED",
+      "baseline_reliability": 0.85,
+      "latency_profile": { "base_ms": 250, "jitter_ms": 40 },
+      "confidence_class": "MEDIUM_HIGH",
+      "default_assigned_roles": ["TEAM_LEAD", "COORDINATION"]
+    },
+    {
+      "source_id": "SOURCE_B_RADAR",
+      "name": "Sentinel Tactical Ground Radar",
+      "type": "RADAR_TELEMETRY",
+      "baseline_reliability": 0.95,
+      "latency_profile": { "base_ms": 120, "jitter_ms": 25 },
+      "confidence_class": "HIGH",
+      "default_assigned_roles": ["COORDINATION", "INFORMATION"]
+    },
+    {
+      "source_id": "SOURCE_C_HUMINT",
+      "name": "Forward Observation Post Echo (HUMINT)",
+      "type": "HUMINT_DISPATCH",
+      "baseline_reliability": 0.72,
+      "latency_profile": { "base_ms": 1800, "jitter_ms": 400 },
+      "confidence_class": "VARIABLE",
+      "default_assigned_roles": ["INFORMATION"]
+    }
+  ],
+  "world_state": {
+    "grid_sector": "GRID_7_BRAVO",
+    "true_threat_actual": "DECOY_CONVOY_EMITTING_SYNTHETIC_RF",
+    "true_ambush_location": "RIDGE_CHARLIE_NORTH",
+    "recon_unit_status": "ENGAGEMENT_READY"
+  },
+  "scheduled_events": [
+    {
+      "time_seconds": 20,
+      "event_type": "INFORMATION_GENERATED",
+      "source_id": "SOURCE_A_UAV",
+      "payload": {
+        "status": "HOSTILE_SIGHTING",
+        "target_type": "CONVOY_6_ARMORED_CARRIERS",
+        "heading": "SOUTH_WEST_AXIS_BRAVO",
+        "speed_kmh": 42,
+        "classification": "ACTIVE_ATTACK_ELEMENT",
+        "summary": "Eagle-1 visual confirms 6 vehicles on Axis Bravo moving toward Sector 7 bridgehead."
+      }
+    },
+    {
+      "time_seconds": 50,
+      "event_type": "INFORMATION_GENERATED",
+      "source_id": "SOURCE_B_RADAR",
+      "payload": {
+        "status": "DOPPLER_ANOMALY",
+        "target_type": "SYNTHETIC_REFLECTORS",
+        "doppler_shift": "ERRATIC_LOW_MASS",
+        "confidence": 0.68,
+        "summary": "Sentinel Radar returns indicate intermittent RCS (radar cross section) inconsistent with heavy armor."
+      }
+    },
+    {
+      "time_seconds": 80,
+      "event_type": "INFORMATION_GENERATED",
+      "source_id": "SOURCE_C_HUMINT",
+      "payload": {
+        "status": "CONFIRMED_DECOY_DISPATCH",
+        "intel_source": "SCOUT_TEAM_ECHO",
+        "observation": "Axis Bravo convoy is unmanned tractor decoys with RF loudspeakers. Actual hostile force concealed on Ridge Charlie!",
+        "urgency": "CRITICAL"
+      }
+    }
+  ],
+  "degradation_rules": [
+    {
+      "rule_id": "RULE_DELAY_RADAR_COORD",
+      "trigger_time_seconds": 40,
+      "duration_seconds": 80,
+      "degradation_type": "DELAY",
+      "source_id": "SOURCE_B_RADAR",
+      "target_roles": ["COORDINATION"],
+      "intensity": 0.75,
+      "parameters": { "delay_seconds": 60 }
+    },
+    {
+      "rule_id": "RULE_CONTRADICTION_INJECT",
+      "trigger_time_seconds": 70,
+      "duration_seconds": 120,
+      "degradation_type": "CONTRADICTION",
+      "source_id": "SOURCE_A_UAV",
+      "target_roles": ["TEAM_LEAD"],
+      "intensity": 1.0,
+      "parameters": {
+        "conflict_code": "CONFLICT-001",
+        "conflicting_source": "SOURCE_C_HUMINT",
+        "opposing_claim": "Convoy on Axis Bravo is primary hostile assault echelon."
+      }
+    }
+  ],
+  "decision_points": [
+    {
+      "decision_point_id": "DP_AXIS_BRAVO_STRIKE",
+      "trigger_time_seconds": 120,
+      "decision_type": "ACTION_DISPATCH",
+      "prompt": "Eagle-1 insists mechanized convoy is advancing on Axis Bravo bridgehead. Information Specialist reports decoy Doppler and OP Echo warns of ambush at Ridge Charlie. Team Lead must issue immediate sub-unit order:",
+      "allowed_roles": ["TEAM_LEAD"],
+      "options": [
+        {
+          "option_id": "OPT_IMMEDIATE_STRIKE_AXIS_BRAVO",
+          "label": "Commit Quick Reaction Force to Axis Bravo",
+          "description": "Commit forward combat assets to intercept the visible convoy on Axis Bravo immediately.",
+          "associated_risk": "HIGH"
+        },
+        {
+          "option_id": "OPT_HOLD_AND_CROSS_VERIFY",
+          "label": "Hold Bridgehead & Request OP-Echo Cross-Verification",
+          "description": "Maintain defensive posture at bridgehead while ordering signals specialist to authenticate Doppler anomaly.",
+          "associated_risk": "LOW"
+        },
+        {
+          "option_id": "OPT_FLANK_RIDGE_CHARLIE",
+          "label": "Preemptive Recon Flank to Ridge Charlie",
+          "description": "Redirect secondary scout patrol to probe Ridge Charlie while screening Axis Bravo with smoke.",
+          "associated_risk": "MEDIUM"
+        }
+      ],
+      "timeout_seconds": 90
+    }
+  ],
+  "outcome_rules": [
+    {
+      "rule_id": "OUTCOME_STRIKE_BRAVO",
+      "condition_decision": "DP_AXIS_BRAVO_STRIKE",
+      "condition_option": "OPT_IMMEDIATE_STRIKE_AXIS_BRAVO",
+      "outcome_state": "TRAPPED_IN_FALSE_ENGAGEMENT",
+      "narrative": "Quick Reaction Force engaged decoy tractor trucks on Axis Bravo. Real hostile detachment on Ridge Charlie opened enfilade fire from high ground.",
+      "ground_truth_fact": "Axis Bravo was a deliberate electronic decoy designed to draw defense assets away from Ridge Charlie."
+    },
+    {
+      "rule_id": "OUTCOME_HOLD_VERIFY",
+      "condition_decision": "DP_AXIS_BRAVO_STRIKE",
+      "condition_option": "OPT_HOLD_AND_CROSS_VERIFY",
+      "outcome_state": "DECOY_EXPOSED_ZERO_CASUALTIES",
+      "narrative": "Sub-unit held position. Signals analysis confirmed synthetic RF broadcast, preventing ambush. Hostile force at Ridge Charlie was neutralized by pre-planned artillery.",
+      "ground_truth_fact": "Holding bridgehead allowed OP-Echo HUMINT and Radar Doppler metadata to merge, confirming the decoy."
+    },
+    {
+      "rule_id": "OUTCOME_FLANK_CHARLIE",
+      "condition_decision": "DP_AXIS_BRAVO_STRIKE",
+      "condition_option": "OPT_FLANK_RIDGE_CHARLIE",
+      "outcome_state": "TACTICAL_SURPRISE_ACHIEVED",
+      "narrative": "Flanking force surprised hostile ambushers at Ridge Charlie, capturing communication gear intact.",
+      "ground_truth_fact": "Hostile ambush at Ridge Charlie was vulnerable on its eastern reverse slope."
+    }
+  ],
+  "evaluation_rules": {
+    "optimal_decision": "OPT_HOLD_AND_CROSS_VERIFY",
+    "acceptable_decision": "OPT_FLANK_RIDGE_CHARLIE",
+    "failure_decision": "OPT_IMMEDIATE_STRIKE_AXIS_BRAVO",
+    "requires_conflict_acknowledgement": true,
+    "max_acceptable_decision_latency_seconds": 60
+  }
+}
