@@ -6,98 +6,146 @@
   color: #14213D;
 }
 
-/* Institutional Top Header */
+/* Institutional Top Command Navbar Wrapper */
+.top-header-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(20, 33, 61, 0.16);
+}
+
+/* Tier 1: Institutional Utility & Governance Bar */
+.gov-utility-bar {
+  height: 32px;
+  background-color: #0B132B;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  font-size: 11px;
+  color: #9FB3C8;
+  letter-spacing: 0.03em;
+  box-sizing: border-box;
+}
+
+.gov-utility-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.gov-utility-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+
+/* Tier 2: Primary Brand & Command Navigation Bar */
 .top-navbar {
-  height: 64px;
+  height: 62px;
   background-color: #14213D;
   border-bottom: 2px solid #FCA311;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  box-shadow: 0 4px 12px rgba(20, 33, 61, 0.15);
+  box-sizing: border-box;
+  gap: 20px;
 }
 
 .brand-section {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .brand-icon-wrapper {
-  width: 36px;
-  height: 36px;
-  background: rgba(252, 163, 17, 0.15);
-  border: 1px solid rgba(252, 163, 17, 0.4);
+  width: 40px;
+  height: 40px;
+  background: rgba(252, 163, 17, 0.12);
+  border: 1px solid rgba(252, 163, 17, 0.35);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #FCA311;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.brand-icon-wrapper:hover {
+  transform: scale(1.04);
 }
 
 .brand-title {
   font-family: 'Alice', Georgia, serif;
-  font-size: 19px;
+  font-size: 22px;
   font-weight: 700;
   color: #FFFFFF;
-  letter-spacing: 0.02em;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
 }
 
-.brand-subtitle {
-  font-family: 'Inter', sans-serif;
-  font-size: 11px;
-  color: #9FB3C8;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.brand-badge {
-  font-size: 11px;
-  background: rgba(252, 163, 17, 0.2);
-  color: #FCA311;
-  border: 1px solid rgba(252, 163, 17, 0.4);
-  padding: 2px 8px;
-  border-radius: 4px;
+.brand-tag-pill {
   font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
   font-weight: 600;
+  color: #FCA311;
+  background: rgba(252, 163, 17, 0.15);
+  border: 1px solid rgba(252, 163, 17, 0.35);
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
-/* Navigation Pills */
+/* Nav Links Container */
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: rgba(11, 19, 43, 0.6);
-  padding: 4px;
+  gap: 3px;
+  background: rgba(11, 19, 43, 0.65);
+  padding: 4px 6px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none; /* Firefox */
+  flex-shrink: 1;
+}
+
+.nav-links::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
 }
 
 .nav-btn {
   background: transparent;
   color: #D9E2EC;
   border: none;
-  padding: 6px 14px;
-  font-size: 13px;
+  padding: 7px 12px;
+  font-size: 12.5px;
   font-weight: 500;
   border-radius: 6px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: all 0.15s ease-in-out;
 }
 
 .nav-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.09);
   color: #FFFFFF;
 }
 
@@ -105,39 +153,7 @@
   background: #FCA311;
   color: #000000;
   font-weight: 600;
-  box-shadow: 0 2px 6px rgba(252, 163, 17, 0.3);
-}
-
-/* Header Status Pill */
-.system-status-indicator {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  font-family: 'JetBrains Mono', monospace;
-  color: #BCCCDC;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 6px 12px;
-  border-radius: 6px;
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #10B981;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
-}
-
-.status-dot.degraded {
-  background-color: #FCA311;
-  box-shadow: 0 0 8px rgba(252, 163, 17, 0.6);
-}
-
-.status-dot.offline {
-  background-color: #EF4444;
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+  box-shadow: 0 2px 6px rgba(252, 163, 17, 0.25);
 }
 
 /* Main Container */
