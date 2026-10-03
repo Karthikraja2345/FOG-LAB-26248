@@ -81,12 +81,34 @@ async def websocket_session_route(
     except Exception:
         ws_manager.disconnect(websocket, session_id)
 
-@app.get("/")
-def root():
-    return {
-        "message": "FOG-LAB 26248 Simulation Engine Operational",
-        "problem_statement": "PS 26248 - Immersive Multi-Domain Decision-Making Trainer for Degraded Communication Environments",
-        "organization": "Ministry of Defence (MoD) / Defence Services Staff College",
-        "docs_url": "/docs",
-        "health_url": "/api/health"
-    }
+import os
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))
+
+if os.path.exists(frontend_dist):
+    assets_dir = os.path.join(frontend_dist, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        if full_path.startswith("api") or full_path.startswith("ws") or full_path.startswith("docs") or full_path.startswith("openapi.json"):
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail="Not Found")
+        file_path = os.path.join(frontend_dist, full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(frontend_dist, "index.html"))
+else:
+    @app.get("/")
+    def root():
+        return {
+            "message": "FOG-LAB 26248 Simulation Engine Operational",
+            "problem_statement": "PS 26248 - Immersive Multi-Domain Decision-Making Trainer for Degraded Communication Environments",
+            "organization": "Ministry of Defence (MoD) / Defence Services Staff College",
+            "docs_url": "/docs",
+            "health_url": "/api/health"
+        }
+

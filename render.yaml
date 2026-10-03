@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: fog-lab-26248
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_NAME
+        value: "FOG-LAB 26248"
+      - key: APP_ENV
+        value: "production"
+      - key: CORS_ORIGINS
+        value: "*"
