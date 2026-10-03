@@ -15,13 +15,14 @@ WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
     PORT=8000
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source trees
@@ -31,7 +32,7 @@ COPY scenarios ./scenarios
 COPY reports ./reports
 COPY scripts ./scripts
 
-# Copy pre-compiled frontend distribution
+# Copy pre-compiled frontend distribution from Stage 1
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
 # Pre-populate demo database with validated scenarios
